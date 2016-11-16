@@ -1,0 +1,62 @@
+!-------- input file for Fe-based -------
+! 計算
+! マーク「!」はコメント
+
+!=== load file ===
+!Load 	  ! 初期データをファイルから読み込む
+!in.dat  ! filename 
+!===================
+
+!=== hopping data ===
+Hopping	     ! ホッピングパラメータの読み込み
+y	!yes or no
+in.hop1111xyz.dat	!入力データのファイル名
+!===================
+
+!=== configuration ===
+Configuration 	   !系のサイズなど設定
+40	!Nkx 	   !サイズ（メッシュの数）
+1       !Nqx 	   !周期（PMのとき 1，AFMのとき 2）   
+6.0d0	!Dne	   !フィリング
+!=====================
+
+!=== parameters ===
+Parameters	!パラメータの設定変更
+1.2 	!U
+0.22    !DJ
+0.0d0	!Dtemp 温度
+!=====================
+
+!=== energy range ===
+Energy 	    !エネルギーの範囲を設定
+0.4d0	!Energy range (upper limit) 上限
+100	!# of Slices メッシュの数
+0.002d0	!eta ぼかし
+0.0d0	!lower limit of omega (lower limit) 下限
+0	!initial step
+!=====================
+
+Display		!設定内容を画面出力
+
+!=== mean-field ===
+Meanfield	!平均場計算
+0 	! -1: continue  0: uniform   1: stripe !系の初期設定．-1 だと続きから計算
+!=====================
+
+!=== Fermi surface & velocity===
+Fermi	   !MF required (for chemical potential data)フェルミ面の計算．先に平均場計算をしておく必要あり．
+100 	   !size
+v 	   !kF or vF     k：フェルミ面のみ． v：フェルミ速度も計算
+out.fs.dat !output filename
+!=====================
+
+
+
+!=== susceptibility ===
+Susceptibility   !  帯磁率の計算
+0	!0: chi0  t: transverse  l: longitudinal ! どのモードか？
+00-11	!path -- a: 00-11  b: 00-10  c: 10-01 d: 00-01 e: 10-11  !どの経路？
+-1 	!configuration  計算の初期状態は？ -1:平均場の計算結果に続けて計算
+!======================
+
+Q
