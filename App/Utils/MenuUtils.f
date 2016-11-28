@@ -34,7 +34,7 @@ c###########################################################
 c##   toLowerCase:
 c###########################################################
 
-      subroutine toLowerCase(request)
+      subroutine toLowerCase()
 
       use common, only: request
       implicit none

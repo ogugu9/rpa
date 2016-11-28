@@ -108,13 +108,11 @@ c######################################################################
       end do
 
       do is = 0, Nsite - 1
-         ix = isitex(is)
-         iy = isitey(is)
             do mu = 1,Nband ; do nu = 1,Nband
                do iQ = 0, Nqx-1
                   lQ1 = Nband * iQ
                   zhmat(mu+lQ1,nu+lQ1) =  zhmat(mu+lQ1,nu+lQ1)
-     &                 + t(ix,iy,mu,nu) * zb(iQ,ix,iy)
+     &                 + t(is,mu,nu) * zb(iQ,is)
                end do
          end do ; end do
       end do

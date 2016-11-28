@@ -7,25 +7,26 @@
 !in.dat  ! filename
 !===================
 
-!=== hopping data ===
-Hopping	     ! ホッピングパラメータの読み込み
-y	!yes or no
-hop.in	!入力データのファイル名
-!===================
-
 !=== configuration ===
-Configuration 	   !系のサイズなど設定
+Configuration     !系のサイズなど設定
 40      !Nkx 	   !サイズ（メッシュの数）
 1       !Nqx 	   !周期（PMのとき 1，AFMのとき 2）
-24      !Nsite   !隣接サイト数
+25      !Nsite   !隣接サイト数
+5       !Nband   !バンド数
 6.0d0	  !Dne	   !フィリング
 !=====================
 
+!=== hopping data ===
+Hopping	     ! ホッピングパラメータの読み込み
+y	!yes or no
+hop.in	     !入力データのファイル名
+!===================
+
 !=== parameters ===
 Parameters	!パラメータの設定変更
-1.2 	!U
-0.22    !DJ
-0.0d0	!Dtemp 温度
+1.2       !U
+0.22      !J
+0.0d0	    !kT 温度
 !=====================
 
 !=== energy range ===
@@ -35,6 +36,12 @@ Energy 	    !エネルギーの範囲を設定
 0.002d0	!eta ぼかし
 0.0d0	!lower limit of omega (lower limit) 下限
 0	!initial step
+!=====================
+
+!=== iterations ===
+Iterations	!反復回数
+1000 	    ! maxIter 最大反復回数
+1.0d-14 	! Conv 収束判定
 !=====================
 
 Display		!設定内容を画面出力
