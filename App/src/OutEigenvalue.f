@@ -6,59 +6,56 @@ c#########################################################
       subroutine outEigenvalue()
 
       use common, only : Nkx, Nky, Nband, Nqx, Nqy,
-      &     Eall, Zpsiall, Dmu, Dne, kT
+     &      Nkpath, Nkmesh, Eband, Dmu, kpathList, kpointList
       implicit none
 
-      integer :: i, j, k, ikx, iky, kx, ky, ispin
-      integer :: lmtl, lmtu, mx, my
-      real*8 :: p1, p2, p3, p4, p5, p6, emin, emax, e0, drl, dim
-      real*8 :: dummy1, dummy2
-
-      goto 100
-      open(10,file = "eigen.out")
-      write(10,*) Nkx, Nky
-      write(10,*) 'Dne=', Dne
-      write(10,*) 'Dmu=', Dmu
-      write(10,*) 'kT=', kT
+      integer :: ik, mu, nkpt, nkms, ispin
+      real*8 :: dk, pathLength
+      real*8 :: pathVec(1:3)
 
 c============================[
 c== output data for gnuplot
 c==
-      open(20,file="out.eplot.dat")
 
-      if (mx == 0) mx = 1
-      if (my == 0) my = 1
-
-      do ispin = 1,2 ; do mu = 1, Nband * Nqx
-         do nkpt = 1, Nkpath*Nkmesh
-
-            write(20,*) p1, dummy1, dummy2
+      open(30,file="out.band.up.dat")
+      do mu = 1, Nband * Nqx
+         dk = 0.0d0
+         do nkpt = 1, Nkpath
+            ik = 0
+            pathVec(:) = kpathList(nkpt)%iniPosition
+     &       - kpathList(nkpt)%finPosition
+            pathLength = DOT_PRODUCT(pathVec,pathVec)
+            do nkms = 1, Nkmesh
+               write(30,'(F8.3,F8.3)'),
+     &         dk, Eband(ik,mu*Nqx,1)-Dmu
+               dk = dk + pathLength/DBLE(Nkmesh)
+               ik = ik + 1
+            end do
          end do
-         write(20,1)
-      end do ; end do
+         write(30,1)
+      end do
+      close(30)
 
-      lmtu = INT(emax - e0) + 1
-      lmtl = INT(emin - e0) - 1
-
-      write(20,*) "? ? ?", 0.0d0, lmtu
-      write(20,*) "? ? ?", 0.0d0, lmtl
-      write(20,1)
-      write(20,*) "? ? ?", p1, lmtu
-      write(20,*) "? ? ?", p1, lmtl
-      write(20,1)
-      write(20,*) "? ? ?", p2, lmtu
-      write(20,*) "? ? ?", p2, lmtl
-      write(20,1)
-      write(20,*) "? ? ?", p3, lmtu
-      write(20,*) "? ? ?", p3, lmtl
-      write(20,1)
-      write(20,*) "? ? ?", p4, lmtu
-      write(20,*) "? ? ?", p4, lmtl
-      write(20,1)
-      write(20,*) "? ? ?", p5, lmtu
-      write(20,*) "? ? ?", p5, lmtl
-      write(20,1)
-      close(20)
+      open(40,file="out.band.dn.dat")
+      do mu = 1, Nband * Nqx
+         dk = 0.0d0
+         ik = 0
+         do nkpt = 1, Nkpath
+            pathVec(:) = kpathList(nkpt)%iniPosition
+     &       - kpathList(nkpt)%finPosition
+            pathLength = DOT_PRODUCT(pathVec,pathVec)
+            do nkms = 1, Nkmesh
+               write(40,'(F8.3,F8.3)'),
+     &         dk, Eband(ik,mu*Nqx,2)-Dmu
+               dk = dk + pathLength/DBLE(Nkmesh)
+               ik = ik + 1
+            end do
+         end do
+         write(40,'(F8.3,F8.3)'),
+     &         dk, Eband(Nkpath*Nkmesh,mu*Nqx,2)-Dmu
+         write(40,1)
+      end do
+      close(40)
 
 c================================]
 

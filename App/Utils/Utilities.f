@@ -1,7 +1,7 @@
 
-c###########################################################
-c##   deallocation:
-c###########################################################
+c###################################################################
+c####   deallocation:
+c###################################################################
       subroutine deallocation()
 
       use common
@@ -35,6 +35,8 @@ c###########################################################
       if (isAllocated .EQV. .true.) deallocate(Zop0)
       isAllocated = allocated(Zop2)
       if (isAllocated .EQV. .true.) deallocate(Zop2)
+      isAllocated = allocated(Zopnew)
+      if (isAllocated .EQV. .true.) deallocate(Zopnew)
       isAllocated = allocated(Zopnew0)
       if (isAllocated .EQV. .true.) deallocate(Zopnew0)
       isAllocated = allocated(Zopnew2)
@@ -44,11 +46,11 @@ c###########################################################
 
       return
       end
-c###########################################################
+c###################################################################
 
-c###########################################################
-c##   allocation:
-c###########################################################
+c###################################################################
+c####   allocation:
+c###################################################################
       subroutine allocation()
 
       use common
@@ -58,8 +60,8 @@ c###########################################################
       allocate( Zpsiall(0:Nkx,0:Nky,Nband*Nqx,Nband*Nqx,2) )
       allocate( t(Nsite,Nband,Nband) )
       allocate( Eorbit(Nband) )
-      allocate( Isitex(0:Nsite-1) )
-      allocate( Isitey(0:Nsite-1) )
+      allocate( Isitex(Nsite) )
+      allocate( Isitey(Nsite) )
       allocate( Dnuu(Nband) )
       allocate( Dndd(Nband) )
       allocate( Dens(Nband,2) )
@@ -67,10 +69,51 @@ c###########################################################
       allocate( Zop(Nband,Nband,2) )
       allocate( Zop0(Nband,Nband,2) )
       allocate( Zop2(Nband,Nband,2) )
+      allocate( Zopnew(Nband,Nband,2) )
       allocate( Zopnew0(Nband,Nband,2) )
       allocate( Zopnew2(Nband,Nband,2) )
       allocate( Zdens(Nband,Nband) )
 
       return
       end
-c###########################################################
+c###################################################################
+
+c###################################################################
+c####   deallocBandPlot:
+c###################################################################
+      subroutine deallocKpath()
+
+      use common
+      implicit none
+
+      logical :: isAllocated
+
+      isAllocated = allocated(kpathList)
+      if (isAllocated .EQV. .true.) deallocate(kpathList)
+      isAllocated = allocated(kpointList)
+      if (isAllocated .EQV. .true.) deallocate(kpointList)
+      isAllocated = allocated(Eband)
+      if (isAllocated .EQV. .true.) deallocate(Eband)
+      isAllocated = allocated(Zpsiband)
+      if (isAllocated .EQV. .true.) deallocate(Zpsiband)
+
+      return
+      end
+c###################################################################
+
+c###################################################################
+c####   allocBandPlot:
+c###################################################################
+      subroutine allocKpath()
+
+      use common
+      implicit none
+
+      allocate( kpathList(Nkpath) )
+      allocate( kpointList(0:Nkpath*Nkmesh,1:3) )
+      allocate( Eband(0:Nkpath*Nkmesh,Nband*Nqx,2) )
+      allocate( Zpsiband(0:Nkpath*Nkmesh,Nband*Nqx,Nband*Nqx,2) )
+
+      return
+      end
+c###################################################################

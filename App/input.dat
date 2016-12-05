@@ -16,6 +16,19 @@ Configuration     !系のサイズなど設定
 6.0d0	  !Dne	   !フィリング
 !=====================
 
+!=== band plot ===
+Bandplot          !バンド分散プロット用
+10      !Nkmesh   !path間のメッシュ
+5       !Nkpath   !pathの本数（以下リストの行数）
+## KPOINT PATH ##
+G  0.00  0.00  0.00   X  0.50  0.00  0.00
+X  0.50  0.00  0.00   M  0.50  0.50  0.00
+M  0.50  0.50  0.00   G  0.00  0.00  0.00
+G  0.00  0.00  0.00   X  0.00  0.50  0.00
+X  0.00  0.50  0.00   X  0.50  0.00  0.00
+## KPOINT PATH ##
+!=====================
+
 !=== hopping data ===
 Hopping	     ! ホッピングパラメータの読み込み
 y	!yes or no
@@ -47,8 +60,8 @@ Iterations	!反復回数
 Display		!設定内容を画面出力
 
 !=== mean-field ===
-!Meanfield	!平均場計算
-!0 	! -1: continue  0: uniform   1: stripe !系の初期設定．-1 だと続きから計算
+Meanfield	!平均場計算
+0 	! -1: continue  0: uniform   1: stripe !系の初期設定．-1 だと続きから計算
 !=====================
 
 !=== Fermi surface & velocity===
@@ -57,8 +70,6 @@ Display		!設定内容を画面出力
 !v 	   !kF or vF     k：フェルミ面のみ． v：フェルミ速度も計算
 !out.fs.dat !output filename
 !=====================
-
-
 
 !=== susceptibility ===
 !Susceptibility   !  帯磁率の計算

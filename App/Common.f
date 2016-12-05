@@ -25,7 +25,6 @@ c      ## setIteration calcSelfConsistent ##
 c     ## setEnergyRange ##
       integer, public :: maxOmega, minOmega
       real*8, public  :: Erange, Erng, initOmega, eta !!Erange, Erngの違い
-
 c     ## loadHopping ##
       real*8, allocatable, public :: t(:,:,:), Eorbit(:)
       integer, public :: Nsite
@@ -45,6 +44,19 @@ c     ## calcChemicalPotential ##
       complex*16, allocatable, public :: Zopnew0(:,:,:)
       complex*16, allocatable, public :: Zop2(:,:,:)
       complex*16, allocatable, public :: Zopnew2(:,:,:)
+
+c     ## BandPlot ##
+      integer, public :: Nkmesh, Nkpath
+      real*8, allocatable, public :: kpointList(:,:)
+      real*8, allocatable, public :: Eband(:,:,:)
+      complex*16, allocatable, public :: Zpsiband(:,:,:,:)
+      type kpathType
+         character*16 :: iniName, finName
+         real*8 :: iniPosition(1:3)
+         real*8 :: finPosition(1:3)
+      end type kpathType
+      type(kpathType),allocatable :: kpathList(:)
+
 
 c      integer, public :: Muselect(4)
 c      character(len=4), public :: Ledgemode

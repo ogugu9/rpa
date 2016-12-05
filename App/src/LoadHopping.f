@@ -32,16 +32,19 @@ c     // Init hopping
 
       is = 0
 c     // Read hopping
+c      write(*,*) '   is   ix   iy   mu   nu   t'
+c      write(*,*) '-----------------------------------------'
       do
          read (10,'(4I5,F12.6)',end=180) ix, iy, mu, nu, val
 c           // Siteに対する添え字のラベリングをinputから行う
 c           if (ix <= 2 && iy <= 2) then
          if((mu.eq.1).and.(nu.eq.1)) then
+            is = is + 1
             isitex(is) = ix
             isitey(is) = iy
-            is = is + 1
          end if
          t(is,mu,nu) = val
+c         write(*,'(5I5,F12.6)') is, ix, iy, mu, nu, val
 c           end if
       end do
 

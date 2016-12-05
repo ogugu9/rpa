@@ -61,8 +61,8 @@ c==
 c## INITIAL CONFIGURATION[
          dummy = 0.1d0
 
-         nuu(:) = dummy
-         ndd(:) = -dummy
+         Dnuu(:) = dummy
+         Dndd(:) = -dummy
 
          ! ** ここは変更しなくて良いのか
          do mu = 1, Nband
@@ -125,10 +125,10 @@ c==
          dummy = 0.1d0
 
 c## INITIAL CONFIGURATION[
-         nuu(:) = dummy
-         ndd(:) = -dummy
+         Dnuu(:) = dummy
+         Dndd(:) = -dummy
 
-         do mu = 1, Ns
+         do mu = 1, Nband
             Zop(mu,mu,1) =  dummy
             Zop(mu,mu,2) = -dummy
          end do
@@ -167,18 +167,18 @@ c## INITIAL CONFIGURATION[
          Zop0(:,:,:) = 0.0d0
          Zop(:,:,:) = 0.0d0
 
-         nuu(:) = dummy
-         ndd(:) = -dummy
+         Dnuu(:) = dummy
+         Dndd(:) = -dummy
 
          dphase = 0.25d0 * Pi
          zdummy = EXP(Zi * dphase)
-         do mu = 1, Ns
+         do mu = 1, Nband
             Zop(mu,mu,1) =  dummy * zdummy
             Zop(mu,mu,2) = -Zop(mu,mu,1)
 
 c            Zop2(mu,mu,:) = cmplx(dummy,dummy)
 c            Zop2(mu,mu,:) = dummy
-            Zop0(mu,mu,:) = ne / DBLE(Ns) / 2.0d0
+            Zop0(mu,mu,:) = Dne / DBLE(Nband) / 2.0d0
          end do
 
          do mu = 1, Nband ; do nu = mu, Nband

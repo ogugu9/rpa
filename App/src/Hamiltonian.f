@@ -4,7 +4,7 @@ c#########################################################
 c#### hamiltoniank:
 c#########################################################
 
-      subroutine diagHamiltonian(eig,zpsi,dkx,dky,ispin)
+      subroutine diagH(eig,zpsi,dkx,dky,ispin)
 
       use common, only : Nkx, Nky, Nband, Nqx, Nqy, Check
       implicit none
@@ -77,7 +77,7 @@ c#########################################################
      &     Pi, Zi, t, Eorbit, Isitex, Isitey
       implicit none
 
-      integer, intent(in), optional :: ispin
+      integer, intent(in) :: ispin
       real*8, intent(in) :: dkx, dky
       complex*16, intent(out) :: zhmat(Nband*Nqx,Nband*Nqx)
 
@@ -85,7 +85,7 @@ c#########################################################
       integer :: mu, nu
       integer :: iQ, lQ1
       real*8 :: akx, aky
-      complex*16 :: zbloch(0:Nqx,0:Nsite-1)
+      complex*16 :: zbloch(0:Nqx,Nsite)
 
       if ((ispin /= 1).and.(ispin /=2)) then
          write(*,*) 'Error in makeH  -- invalid spin'
@@ -107,12 +107,12 @@ c######################################################################
          call calcBlochFactor(zbloch(iQ,:),akx,aky)
       end do
 
-      do is = 0, Nsite - 1
+      do is = 1, Nsite
             do mu = 1,Nband ; do nu = 1,Nband
                do iQ = 0, Nqx-1
                   lQ1 = Nband * iQ
                   zhmat(mu+lQ1,nu+lQ1) =  zhmat(mu+lQ1,nu+lQ1)
-     &                 + t(is,mu,nu) * zb(iQ,is)
+     &                 + t(is,mu,nu) * zbloch(iQ,is)
                end do
          end do ; end do
       end do
@@ -134,17 +134,18 @@ c#########################################################
       use common, only: Nkx, Nky, Nsite, Isitex, Isitey, Pi, Zi
       implicit none
 
+      integer :: is, ix, iy
       real*8, intent(in) :: dkx, dky
-      complex*16, intent(out) :: zbloch(0:Nsite-1)
+      complex*16, intent(out) :: zbloch(Nsite)
 
       zbloch(:) = 0.0d0
 
-      do is = 0, Nsite-1
+      do is = 1, Nsite
          ix = isitex(is)
          iy = isitey(is)
          !** orthorhombicもこれでいいのか→よさそう
 c         zbloch(is) = EXP( 2.0d0*Pi*Zi * (ix*dkx + iy*dky) )
-         zbloch(is) = EXP( Pi*Zi*(ix*dkx+iy*dky) )
+         zbloch(is) = EXP( 2*Pi*Zi*(ix*dkx+iy*dky) )
       end do
 
       return

@@ -14,7 +14,7 @@ c###################################################################
       real*8 :: ddmu, dnop0
       complex*16 :: zop2temp(Nband,Nband,2), zop0temp(Nband,Nband,2)
 
-      real*8, external :: fermiDirac, Dntotal, diffElectronDensity
+      real*8, external :: fermiDirac, Dntotal, diffDens
 
       cdwmode = 'off'
       n0mode = 'on'
@@ -30,23 +30,28 @@ c==== cdw, n0 モード off の場合,hamiltonian 行列にこれらの項を含
       dnewnuu(:) = 0.0d0
       dnewndd(:) = 0.0d0
 
-      write(*,*)'calculating Meanfield ...'
-      write(*,*) '---------------------------------'
-      write(*,*)'MaxIteration = ',maxIter
-      write(*,*)'Convergence  = ',conv
+      write(*,*)' calculating Meanfield ...'
+      write(*,*)
+      print("('  MaxIteration = ', I5)"), maxIter
+      print("('  Convergence  = ', F5.3)"), conv
+      print("('  Initial Dmu  = ', F5.3)"), Dmu
 
-      write(*,'(g30.16)')Dmu
+      write(*,*)
+      write(*,*)'=========== Iterations ==========='
       zpsiall(:,:,:,:,:)=0.0d0
-
 c## ITERATION[
       it = 1 ; conrs = 1000.0d0
-      write(*,*)
       do while ((it < maxIter).and.(conrs >= Conv))
 
+         write(*,*)
          call calcEigenvalue(Nkx/Nqx, Nky,1)
          call calcEigenvalue(Nkx/Nqx, Nky,2)
+         write(*,*)' calculating Eigenvalue is done ...'
 
-         call estimateChemicalPotential(ddmu)
+         call calcChemical(Dmu)
+         write(*,*) ' estimating chemical potential is done ...'
+
+         write(*,*)
 
          if (it == 1) then
             ddmu = 1.0d-8
@@ -63,27 +68,42 @@ c## NEW ORDER PARAMETER[
          else
             !** Not Para Magnetic mode
             dnop0 = 0.0d0
-            call calcModifiedDens(Zopnew(:,:,:),Zopnew0(:,:,:),
-     &      Zopnew2(:,:,:), Dens(:,:), dnop0)
+            call calcModifiedDens(dnop0)
          end if
 
+         Zopnew(:,:,:) = Zopnew(:,:,:) / DBLE(Nkx * Nky)
+         Zopnew0(:,:,:) = Zopnew0(:,:,:) / DBLE(Nkx * Nky)
+         Zopnew2(:,:,:) = Zopnew2(:,:,:) / DBLE(Nkx * Nky)
+
+         do mu = 1, Nband
+            Dnuu(mu) = Zopnew(mu,mu,1)
+            Dndd(mu) = Zopnew(mu,mu,2)
+            dnop0 = dnop0 + Zopnew0(mu,mu,1)+Zopnew0(mu,mu,2)
+         end do
+
+         Dens(:,:) = Dens(:,:) / DBLE(Nkx * Nky)
+         Dne1 = Dntotal(Dmu) * DBLE(Nband)
+
          if (Nqx /= 1) then
-            write(*,*) 'density =', dnop0
+            print("('  Density   = ', F5.3)"), dnop0
          endif
 c## NEW ORDER PARAMETER]
 
-         call calcSelfConsistent(Zopnew(:,:,:),Zopnew0(:,:,:),
-     &      Zopnew2(:,:,:), zop2temp(:,;,;), zop0temp(:,;,;), it)
+         call calcSelfConsistent(zop2temp(:,:,:), zop0temp(:,:,:), it)
          it = it +1
 
       end do
 c## ITERATION]
 
+      write(*,*)
+      write(*,*)'=========== Iterations ==========='
+      write(*,*)
+
 c==== cdw, n0 モード off の場合,hamiltonian 行列にこれらの項を含めない．
-      if (cdwmode(1:2) /= 'on') then
+      if (cdwmode /= 'on') then
           Zop2(:,:,:) = 0.0d0
       end if
-      if (n0mode(1:2) /= 'on') then
+      if (n0mode /= 'on') then
           Zop0(:,:,:) = 0.0d0
       end if
 
@@ -104,20 +124,20 @@ c###################################################################
 c##### calcSelfConsistent:
 c###################################################################
 
-      subroutine calcSelfConsistent(Zopnew,Zopnew0,Zopnew2,
-     &      zop0temp,zop2temp,it)
+      subroutine calcSelfConsistent(zop0temp,zop2temp,it)
 
       use common
       implicit none
 
-      complex*16, intent(inout) :: Zopnew(Nband,Nband,2),
-     &      Zopnew0(Nband,Nband,2), Zopnew2(Nband,Nband,2),
-     &      zop2temp(Nband,Nband,2), zop0temp(Nband,Nband,2)
-
       character :: fnameTemp*40
+      character :: cdwmode*3, n0mode*3
       real*8 :: diff, ratio
       integer :: i
+      integer,intent(in) :: it
+      complex*16,intent(out) :: zop0temp(Nband,Nband,2)
+      complex*16,intent(out) :: zop2temp(Nband,Nband,2)
 
+      !** Commonに入れたい
       cdwmode = 'off'
       n0mode = 'on'
 
@@ -125,18 +145,19 @@ c###################################################################
       conrs = -1.0d0
       conrs = MAXVAL(ABS(Zopnew(:,:,:)-Zop(:,:,:)))
 
-      if (cdwmode(1:2) == 'on') then
+      if (cdwmode == 'on') then
          diff = MAXVAL(ABS(Zopnew2(:,:,:)-Zop2(:,:,:)))
          conrs = MAX(conrs,diff)
       end if
-      if (n0mode(1:2) == 'on') then
+      if (n0mode == 'on') then
          diff = MAXVAL(ABS(Zopnew0(:,:,:)-Zop0(:,:,:)))
          conrs = MAX(conrs,diff)
       end if
 
-      write(*,'(a,i6,g15.8,a,g15.8,a,g15.8,a)')
-     &      ' it,conrs = ', it,conrs, '  Dmu= ', Dmu,
-     &      ' M = ', SUM(Dnuu(:)-Dndd(:)), 'muB'
+      print("('  Iteration = ', I5)"), it
+      print("('  Conrs     = ', F5.3)"), conrs
+      print("('  Dmu = ', F5.3)"), Dmu
+      print("('  M   = ', F5.3, ' muB')"), SUM(Dnuu(:)-Dndd(:))
 
       ratio = 0.3d0
       Zop(:,:,:) = Zopnew(:,:,:) * (1.0d0 - ratio)
@@ -158,11 +179,11 @@ c###################################################################
       end do
 
       zop2temp(:,:,:) = Zop2(:,:,:)
-      if (cdwmode(1:2) /= 'on') then
+      if (cdwmode /= 'on') then
           Zop2(:,:,:) = 0.0d0
       end if
       zop0temp(:,:,:) = Zop0(:,:,:)
-      if (n0mode(1:2) /= 'on') then
+      if (n0mode /= 'on') then
           Zop0(:,:,:) = 0.0d0
       end if
 
@@ -171,11 +192,11 @@ c## output temporary result[
          Zop2(:,:,:) = zop2temp(:,:,:)
          Zop0(:,:,:) = zop0temp(:,:,:)
          fnameTemp = 'temp.dat'
-         call saveData(fnameTemp)
-         if (cdwmode(1:2) /= 'on') then
+         !** call saveData(fnameTemp)
+         if (cdwmode /= 'on') then
             if (conrs >= Conv) Zop2(:,:,:) = 0.0d0
          end if
-         if (n0mode(1:2) /= 'on') then
+         if (n0mode /= 'on') then
             if (conrs >= Conv) Zop0(:,:,:) = 0.0d0
          end if
 
@@ -197,19 +218,17 @@ c###################################################################
 c##### calcModifiedDensities: calc Densities using
 c###################################################################
 
-      subroutine calcModifiedDens(Zopnew,Zopnew0,Zopnew2,Dens,dnop0)
+      subroutine calcModifiedDens(dnop0)
 
       use common
       implicit none
 
-      complex*16, intent(inout) :: Zopnew(Nband,Nband,2),
-     &      Zopnew0(Nband,Nband,2), Zopnew2(Nband,Nband,2)
-      real*8, intent(inout) :: Dens(Nband,2), dnop0
+      real*8, intent(inout) :: dnop0
 
       integer :: i, is, js, js0, js2
       integer :: kx, ky, mu, nu
 
-      real*8, external :: fermiDirac
+      real*8, external :: fermiDirac, Dntotal
 
       do mu = 1, Nband ; do nu = 1, Nband
          do kx = 0, Nkx - 1 ; do ky = 0, Nky - 1
@@ -243,19 +262,6 @@ c###################################################################
             end do
          end do ; end do
       end do ; end do
-
-      Zopnew(:,:,:) = Zopnew(:,:,:) / DBLE(Nkx * Nky)
-      Zopnew0(:,:,:) = Zopnew0(:,:,:) / DBLE(Nkx * Nky)
-      Zopnew2(:,:,:) = Zopnew2(:,:,:) / DBLE(Nkx * Nky)
-
-      do mu = 1, Nband
-         Dnuu(mu) = Zopnew(mu,mu,1)
-         Dndd(mu) = Zopnew(mu,mu,2)
-         dnop0 = dnop0 + Zopnew0(mu,mu,1)+Zopnew0(mu,mu,2)
-      end do
-
-      Dens(:,:) = Dens(:,:) / DBLE(Nkx * Nky)
-      Dne1 = Dntotal(Dmu) * DBLE(Nband)
 
       return
       end
@@ -297,7 +303,7 @@ c###################################################################
       dn = 0.0d0
       do mu = 1, Nband
          sum = DIMAG(Zdens(mu,mu))
-         if (dummy > 1.0d-13) then
+         if (sum > 1.0d-13) then
             write(*,*) 'ERROR in density'
             write(*,*) mu, sum
             read(5,*)

@@ -1,6 +1,6 @@
-c###########################################################
+c###################################################################
 c##   Lindhard90
-c###########################################################
+c###################################################################
 
       program Lindhard90
 
@@ -12,6 +12,8 @@ c###########################################################
       fnameHop = 'hop.in'
       fnameInit = 'init.out'
       fnameOut = 'lin90.out'
+      Zi = DCMPLX(0.0,1.0)
+      Pi = ACOS(-1.0d0)
 
 c      call set_hopping()
 
@@ -28,11 +30,11 @@ c      call set_hopping()
  999  continue
       end
 
-c###########################################################
+c###################################################################
 
-c###########################################################
+c###################################################################
 c##   Router:
-c###########################################################
+c###################################################################
 
       subroutine Router()
 
@@ -45,6 +47,8 @@ c###########################################################
          call setParameter()
       else if (request == 'c') then
          call setConfig()
+      else if (request == 'b') then
+         call loadKpath()
       else if (request == '1') then
          !call initConfig()
       else if (request == 'd') then
@@ -66,7 +70,7 @@ c###########################################################
       else if (request == 'w') then
          !call saveData()
       else if (request == 'm') then
-         !call startMeanField(ierr)
+         call startMeanField(ierr)
       else if (request == 'o') then
          !** メソッド名変えたい
          !call orbital()
@@ -92,11 +96,11 @@ c###########################################################
  999  return
       end
 
-c###########################################################
+c###################################################################
 
-c###########################################################
+c###################################################################
 c##   setParameter:
-c###########################################################
+c###################################################################
 
       subroutine setParameter()
 
@@ -120,19 +124,19 @@ c###########################################################
       return
       end
 
-c###########################################################
+c###################################################################
 
-c###########################################################
+c###################################################################
 c##   setConfig: **Nredx関連がよくわからない　＋　Nkx=Nkyでいいのか？
-c###########################################################
+c###################################################################
 
       subroutine setConfig()
 
-      use common, only : Nkx, Nky, Nqx, Nqy, Nsite, Nredx, Nredy, Nband,
-     &                  Dne
+      use common, only : Nkx, Nky, Nqx, Nqy, Nsite,
+     &                  Nredx, Nredy, Nband, Dne, Dnuu, Dndd
       implicit none
 
-      write(*,*) 'setting size of system ...'
+      write(*,*) 'setting config ...'
 
       read(5,*,err=999) Nkx
       if (MOD(Nkx,4) /= 0) then
@@ -160,6 +164,9 @@ c###########################################################
 
       call deallocation()
       call allocation()
+      Dnuu(:) = 0.0d0
+      Dndd(:) = 0.0d0
+
       print "(' #electrons/sites <=',I3)", 2 * Nband
       read(5,*,err=999) Dne
       do while ((Dne < 0.0d0).or.(Dne > DBLE(Nband)*2.0d0))
@@ -168,16 +175,16 @@ c###########################################################
       end do
       print "(' => Dne   = ', F5.2)", Dne
 
-      write(*,*) 'setting size of system is done ...'
+      write(*,*) 'setting config done ...'
 
 999   return
       end
 
-c###########################################################
+c###################################################################
 
-c###########################################################
+c###################################################################
 c##   display:
-c###########################################################
+c###################################################################
 
       subroutine display()
 
@@ -185,7 +192,7 @@ c###########################################################
      &     Dne, U, J, kT, Erange, maxOmega, Dnuu, Dens
       implicit none
 
-      write(*,*) '       ========= Current Setting ========'
+      write(*,*) '======== Current Setting ========'
       print "('  Nkx =',I4,'  Nky =',I4)", Nkx, Nky
       print "('  Nqx =',I4,'  Nqy =',I4)", Nqx, Nqy
       print "('  #electrons = ',F5.3)", Dne
@@ -199,11 +206,11 @@ c###########################################################
       return
       end
 
-c###########################################################
+c###################################################################
 
-c###########################################################
+c###################################################################
 c##   setIteration:
-c###########################################################
+c###################################################################
 
       subroutine setIteration()
 
@@ -225,11 +232,11 @@ c      write(*,*) 'Enter convergence level (>1.0e-15)'
       return
       end
 
-c###########################################################
+c###################################################################
 
-c###########################################################
+c###################################################################
 c##   setEnergyRange:
-c###########################################################
+c###################################################################
 
       subroutine setEnergyRange()
 
@@ -260,44 +267,51 @@ c      write(*,*) ' initial step of omega? ', minOmega
       return
       end
 
-c###########################################################
+c###################################################################
 
-c###########################################################
-c##   startMeanField: **fnameInitとfnameOutが未定義, saveData()つくってない
-c###########################################################
+c###################################################################
+c##   startMeanField: **saveData()
+c###################################################################
 
       subroutine startMeanField(ierr)
 
-      use common, only: request, fnameInit, fnameOut, Dne, Dne1
+      use common, only: request, fnameInit, fnameOut, Dne, Dne1,
+     &         Nkx, Nky
       implicit none
 
       integer, intent(out) :: ierr
       real*8 :: diff
       integer :: nk0
 
-      !call initConfig(ierr)
+      call initConfig(ierr)
 
       if(ierr /= 1) then        !ierr=1 : Input Error
 
-         write(*,*) '---------------------------------'
+         write(*,*)
          if(ierr == 0) then
-            write(*,*)'New config is set.'
+            write(*,*)' New config is set.'
          else if(ierr == -1) then
-            write(*,*)'Old config is used.'
+            write(*,*)' Old config is used.'
          end if
-         write(*,*) '---------------------------------'
+         write(*,*)
          !call saveData(fnameInit)
-         write(*,*) '---------------------------------'
+         write(*,*)
 
          if (request /= '1') then
-            !call calcMeanField()
+            call calcMeanField()
             write(*,*) ''
-            !call display
+            call display
             write(*,*) '---------------------------------'
             !call saveData(fnameOut)
             write(*,*) '---------------------------------'
             write(*,*) 'saving the eigenenergies...'
-            !call outEigenvalue()
+            call calcBandplot(Nkx,Nky,1)
+            call calcBandplot(Nkx,Nky,2)
+            write(*,*) '---------------------------------'
+            write(*,*) 'calculating eigenvalue for bandplot is done...'
+            call outEigenvalue()
+            write(*,*) '---------------------------------'
+            write(*,*) 'outputing eigenvalue for bandplot is done...'
             nk0 = 100
             write(*,*) '---------------------------------'
             write(*,*) 'calculating DOS...'
@@ -312,7 +326,7 @@ c## check[
          write(*,*)'### calculation may be wrong ##'
          write(*,*)'Dne=',Dne
          write(*,*)'Dne1=',Dne1
-         write(*,*)'|ne1-ne|=',diff
+         write(*,*)'|Dne1-Dne|=',diff
       end if
 c## check]
 

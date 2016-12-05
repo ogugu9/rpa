@@ -6,6 +6,7 @@ c###########################################################
 
       use common, only : Xmode
 
+      write(*,*)
       if (Xmode == 'manual') then
          write(*,*) '             -- MAIN MENU -- '
          write(*,*) '           ENTER THE CHARACTER'
@@ -42,7 +43,7 @@ c###########################################################
       if (request == 'Q') then
          request='q'            !quit
       else if (request == 'B') then
-         request='b'            !interband excitation
+         request='b'            !bandplot
       else if (request == 'C') then
          request='c'            !config
       else if (request == 'D') then

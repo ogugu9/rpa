@@ -4,20 +4,22 @@ c###################################################################
 
       subroutine calcEigenvalue(nx, ny, ispin)
 
-      use common, only : Nkx, Nky, Nqx, Nqy, Eall, Zpsiall, Pi
+      use common, only : Nkx, Nky, Nband, Nqx, Nqy,
+     &      Eall, Zpsiall, Pi
       implicit none
 
       integer, intent(in) :: nx, ny, ispin
       integer :: kx, ky
 
-      real*8 :: akx, aky
+      real*8 :: dkx, dky
 
       do kx = 0, nx-1 ; do ky = 0, ny-1
-         ! ** akxとakyはそのままで正しいか？ → 1/2にしてkx=-nx:nxとするべきか？
-         akx = DBLE(kx) / DBLE(Nkx)
-         aky = DBLE(ky) / DBLE(Nky)
-         call  diagHamiltonian(Eall(kx,ky,:,ispin),Zpsiall(kx,ky,:,:,ispin)
-     &        ,akx,aky,ispin)
+         ! ** akxとakyはそのままで正しい?→1/2にしてkx=-nx:nxとするべき?
+         dkx = DBLE(kx) / DBLE(Nkx)
+         dky = DBLE(ky) / DBLE(Nky)
+         call  diagH(Eall(kx,ky,:,ispin),Zpsiall(kx,ky,:,:,ispin),
+     &   dkx,dky,ispin)
+         !** debug write(*,'(5F8.3)'), Eall(kx,ky,:,ispin)
       end do ; end do
 
 c     ** Not Para Magnetic Mode
@@ -100,8 +102,8 @@ c###################################################################
 
       subroutine calcBandplot(nx, ny, ispin)
 
-      use common, only : Nk, Nky, Nqx, Nqy, Eband, Zpsiband, Pi
-     &      Nkpath, Nkmesh
+      use common, only : Nkx, Nky, Nqx, Nqy, Eband, Zpsiband, Pi,
+     &      Nkpath, Nkmesh, kpointList
       implicit none
 
       integer, intent(in) :: nx, ny, ispin
@@ -110,11 +112,12 @@ c###################################################################
       real*8 :: dkx, dky
 
       do nkpt = 0, Nkpath*Nkmesh
-         dkx = klist(nkpt)%kx
-         dky = klist(nkpt)%ky
-         call  diagHamiltonian(Eband(nkpt,:,ispin),Zpsiband(nkpt,:,:,ispin)
-     &        ,dkx,dky,ispin)
-      end do ; end do
+         dkx = kpointList(nkpt,1)
+         dky = kpointList(nkpt,2)
+         call  diagH(Eband(nkpt,:,ispin),Zpsiband(nkpt,:,:,ispin),
+     &   dkx,dky,ispin)
+         !** debug write(*,'(5F8.3)'), Eband(nkpt,:,ispin)
+      end do
 
 c     ** Not Para Magnetic Mode
       if ((nx /= Nkx).or.(ny /= Nky).or.(Nqx /= 1)) then
