@@ -9,7 +9,7 @@ c###################################################################
 
       Xmode = 'auto'    ! Manual / Auto
 
-      fnameHop = 'hop.in'
+      fnameHop = 'ato.hop'
       fnameInit = 'init.out'
       fnameOut = 'lin90.out'
       Zi = DCMPLX(0.0,1.0)
@@ -132,9 +132,12 @@ c###################################################################
 
       subroutine setConfig()
 
-      use common, only : Nkx, Nky, Nqx, Nqy, Nsite,
-     &                  Nredx, Nredy, Nband, Dne, Dnuu, Dndd
+      use common, only : Nkx, Nky, Nkz, Nqx, Nqy, Nqz, Nsite,
+     &                  Nredx, Nredy, Nredz, Nband, Dne, Dnuu, Dndd,
+     &                  EF, la, lb, lc, recipLat
       implicit none
+      integer :: i, j
+      character*1 :: chara
 
       write(*,*) 'setting config ...'
 
@@ -145,16 +148,35 @@ c###################################################################
       end if
       print "(' => Nkx   = ', I5)", Nkx
 
-      Nky = Nkx
+      read(5,*,err=999) Nky
+      if (MOD(Nky,4) /= 0) then
+         Nky = Nky - MOD(Nky,4)
+         write(*,*) 'Nky is set to', Nky
+      end if
+      print "(' => Nky   = ', I5)", Nky
 
+      read(5,*,err=999) Nkz
+      if (MOD(Nkz,4) /= 0 .and. Nkz /= 1) then
+         Nkz = Nkz - MOD(Nkz,4)
+         write(*,*) 'Nkz is set to', Nkz
+      end if
+      print "(' => Nkz   = ', I5)", Nkz
+
+      ! ** z成分のオーダリングベクトルはどうするか
       read(5,*,err=999) Nqx
       print "(' => Nqx   = ', I5)", Nqx
 
-      if (Nqx <= 3) Nqy = 1
-      if (Nqx == 4) Nqy = 4
+      if (Nqx <= 3) then
+         Nqy = 1
+         Nqz = 1
+      elseif (Nqx == 4) then
+         Nqy = 4
+         Nqz = 4
+      endif
 
       Nredx = 4 / Nqx
       Nredy = 4 / Nqy
+      Nredz = 4 / Nqz
 
       read(5,*,err=999) Nsite
       print "(' => Nsite = ', I5)", Nsite
@@ -175,6 +197,25 @@ c###################################################################
       end do
       print "(' => Dne   = ', F5.2)", Dne
 
+      read(5,*,err=999) EF
+      print "(' => E_F = ', F6.3)", EF
+
+      write(*,*)
+      write(*,*) '#lattice constant'
+      read(5,*,err=999) la
+      read(5,*,err=999) lb
+      read(5,*,err=999) lc
+      print "(' => la, lb, lc = ', 3F6.3)", la, lb, lc
+
+      read(5,*,err=999) chara
+      write(*,*)
+      write(*,*) '#reciprocal lattice'
+      do i = 1,3
+         read(5,'(A5,3F11.6)',err=999) chara, recipLat(i,:)
+         print "(' => b_', I1, ' = ', 3F7.3)", i, recipLat(i,:)
+      end do
+      read(5,*,err=999) chara
+
       write(*,*) 'setting config done ...'
 
 999   return
@@ -188,13 +229,13 @@ c###################################################################
 
       subroutine display()
 
-      use common, only : Nkx, Nky, Nqx, Nqy, Nband,
+      use common, only : Nkx, Nky, Nkz, Nqx, Nqy, Nqz, Nband,
      &     Dne, U, J, kT, Erange, maxOmega, Dnuu, Dens
       implicit none
 
       write(*,*) '======== Current Setting ========'
-      print "('  Nkx =',I4,'  Nky =',I4)", Nkx, Nky
-      print "('  Nqx =',I4,'  Nqy =',I4)", Nqx, Nqy
+      print "('  Nkx =',I4,'  Nky =',I4,'  Nkz =',I4)", Nkx, Nky, Nkz
+      print "('  Nqx =',I4,'  Nqy =',I4,'  Nqz =',I4)", Nqx, Nqy, Nqz
       print "('  #electrons = ',F5.3)", Dne
       print "('  U =',F5.3,'  J =',F5.3,'  kT =',F5.3)", U, J, kT
       !write(*,'(a,x,5f10.3)') 'op n(XYZ)=',Dnuu(1:Nband)
@@ -276,7 +317,7 @@ c###################################################################
       subroutine startMeanField(ierr)
 
       use common, only: request, fnameInit, fnameOut, Dne, Dne1,
-     &         Nkx, Nky
+     &         Nkx, Nky, Nkz
       implicit none
 
       integer, intent(out) :: ierr
@@ -305,8 +346,8 @@ c###################################################################
             !call saveData(fnameOut)
             write(*,*) '---------------------------------'
             write(*,*) 'saving the eigenenergies...'
-            call calcBandplot(Nkx,Nky,1)
-            call calcBandplot(Nkx,Nky,2)
+            call calcBandplot(Nkx,Nky,Nkz,1)
+            call calcBandplot(Nkx,Nky,Nkz,2)
             write(*,*) '---------------------------------'
             write(*,*) 'calculating eigenvalue for bandplot is done...'
             call outEigenvalue()

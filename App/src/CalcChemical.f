@@ -64,22 +64,22 @@ c **********************************
 c **********************************
       double precision function Dntotal(ddmu)
 
-      use common, only: Nkx, Nky, Nband, Eall, kT, Nqx
+      use common, only: Nkx, Nky, Nkz, Nband, Eall, kT, Nqx
       implicit none
 
       real*8, intent(in) :: ddmu
-      integer :: kx, ky, i, ispin
+      integer :: kx, ky, kz, i, ispin
       real*8 :: sum, Vk !Vk: Volume of k-space
       real*8, external :: fermiDirac
 
       sum = 0.0d0
 
-      Vk = DBLE(Nkx * Nky)
-      do kx = 0, Nkx - 1 ; do ky = 0, Nky - 1
+      Vk = DBLE(Nkx * Nky * Nkz)
+      do kx = 0, Nkx-1 ; do ky = 0, Nky-1 ; do kz = 0, Nkz-1
          do i = 1, Nband * Nqx ; do ispin = 1, 2
-            sum = sum + fermiDirac(Eall(kx,ky,i,ispin) - ddmu, kT)
+            sum = sum + fermiDirac(Eall(kx,ky,kz,i,ispin) - ddmu, kT)
          end do ; end do
-      end do ; end do
+      end do ; end do ; end do
       sum = sum
 
       Dntotal = sum  / DBLE(Nband * Nqx) / Vk

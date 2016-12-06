@@ -17,8 +17,11 @@ c###################################################
 c     ## setParameter ##
       real*8, public :: U, J, kT, Dne
 c     ## setConfig ##
-      integer, public :: Nkx, Nky, Nband !Nband2, Nrs, Nb
-      integer, public :: Nqx, Nqy, Nredx, Nredy !** Nredxとはなにか
+      integer, public :: Nkx, Nky, Nkz, Nband !Nband2, Nrs, Nb
+      integer, public :: Nqx, Nqy, Nqz, Nredx, Nredy, Nredz !** Nredxとは?
+      real*8, public :: EF
+      real*8, public :: la, lb, lc
+      real*8, public :: recipLat(1:3,1:3)
 c      ## setIteration calcSelfConsistent ##
       integer, public :: maxIter
       real*8, public  :: conv, conrs
@@ -28,15 +31,15 @@ c     ## setEnergyRange ##
 c     ## loadHopping ##
       real*8, allocatable, public :: t(:,:,:), Eorbit(:)
       integer, public :: Nsite
-      integer, allocatable, public :: Isitex(:), Isitey(:)
+      integer, allocatable, public :: Isitex(:), Isitey(:), Isitez(:)
 
 c     ## calcChemicalPotential ##
       real*8, public :: Dne1, Dmu
-      real*8, allocatable, public :: Eall(:,:,:,:)
+      real*8, allocatable, public :: Eall(:,:,:,:,:)
       real*8, allocatable, public :: Dnuu(:), Dndd(:)
       real*8, allocatable, public :: Dens(:,:)
-      complex*16, allocatable, public :: Zpsiall(:,:,:,:,:)
-      complex*16, allocatable, public :: Zwfprod(:,:,:,:,:,:)
+      complex*16, allocatable, public :: Zpsiall(:,:,:,:,:,:)
+      complex*16, allocatable, public :: Zwfprod(:,:,:,:,:,:,:)
       complex*16, allocatable, public :: Zop(:,:,:)
       complex*16, allocatable, public :: Zdens(:,:)
       complex*16, allocatable, public :: Zopnew(:,:,:)

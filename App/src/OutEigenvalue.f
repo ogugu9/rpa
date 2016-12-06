@@ -5,8 +5,9 @@ c#########################################################
 
       subroutine outEigenvalue()
 
-      use common, only : Nkx, Nky, Nband, Nqx, Nqy,
-     &      Nkpath, Nkmesh, Eband, Dmu, kpathList, kpointList
+      use common, only : Nkx, Nky, Nkz, Nband, Nqx, Nqy, Nqz,
+     &      Nkpath, Nkmesh, Eband, Dmu, kpathList, kpointList,
+     &      recipLat, EF
       implicit none
 
       integer :: ik, mu, nkpt, nkms, ispin
@@ -27,7 +28,7 @@ c==
             pathLength = DOT_PRODUCT(pathVec,pathVec)
             do nkms = 1, Nkmesh
                write(30,'(F8.3,F8.3)'),
-     &         dk, Eband(ik,mu*Nqx,1)-Dmu
+     &         dk, Eband(ik,mu*Nqx,1)-EF
                dk = dk + pathLength/DBLE(Nkmesh)
                ik = ik + 1
             end do
@@ -43,16 +44,17 @@ c==
          do nkpt = 1, Nkpath
             pathVec(:) = kpathList(nkpt)%iniPosition
      &       - kpathList(nkpt)%finPosition
+            pathVec(:) = MATMUL(pathVec, recipLat)
             pathLength = DOT_PRODUCT(pathVec,pathVec)
             do nkms = 1, Nkmesh
                write(40,'(F8.3,F8.3)'),
-     &         dk, Eband(ik,mu*Nqx,2)-Dmu
+     &         dk, Eband(ik,mu*Nqx,2)-EF
                dk = dk + pathLength/DBLE(Nkmesh)
                ik = ik + 1
             end do
          end do
          write(40,'(F8.3,F8.3)'),
-     &         dk, Eband(Nkpath*Nkmesh,mu*Nqx,2)-Dmu
+     &         dk, Eband(0,mu*Nqx,2)-EF
          write(40,1)
       end do
       close(40)

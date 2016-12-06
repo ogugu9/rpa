@@ -37,9 +37,11 @@ c==
          call reset
          Nqx = 1
          Nqy = 1
+         Nqz = 1
 
          Nredx = 4 / Nqx
          Nredy = 4 / Nqy
+         Nredz = 4 / Nqz
 
          Zop(:,:,:) =  0.0d0
          Zop2(:,:,:) =  0.0d0
@@ -51,9 +53,12 @@ c==
          call reset
          Nqx = 2
          Nqy = 1
+         Nqz = 1
 
+         !** Nredzはどうしたらいいか
          Nredx = 2 / Nqx
          Nredy = 2 / Nqy
+         Nredz = 2 / Nqz
 
          call deallocation()
          call allocation()
@@ -117,11 +122,13 @@ c==
 
          Nqx = 2
          Nqy = 2
+         Nqz = 2
          call deallocation()
          call allocation()
 
          Nredx = 2 / Nqx
          Nredy = 2 / Nqy
+         Nredz = 2 / Nqz
          dummy = 0.1d0
 
 c## INITIAL CONFIGURATION[
@@ -153,11 +160,13 @@ c==
          call reset
          Nqx = 4
          Nqy = 4
+         Nqz = 4
          call deallocation()
          call allocation()
 
          Nredx = 4 / Nqx
          Nredy = 4 / Nqy
+         Nredz = 4 / Nqz
 
 
 c## INITIAL CONFIGURATION[
