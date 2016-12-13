@@ -7,7 +7,7 @@ c###################################################
       implicit none
 
       ! Main
-      character(len=1) :: request
+      character(len=1) :: req
       character(len=20), public :: fnameHop, fnameOut, fnameInit
       character(len=1), public :: Check
       character(len=6), public :: Xmode

@@ -18,11 +18,11 @@ c###################################################################
 c      call set_hopping()
 
       call showMenu()                  ! Show Start Menu
-      do while (request /= 'q')
- 10      if ((request.ne.' ').and.(request.ne.'!')) then
+      do while (req /= 'q')
+ 10      if ((req.ne.' ').and.(req.ne.'!')) then
             write(*,*)
          endif
-         read (5,'(A1)',err=10) request   ! Read Input File
+         read (5,'(A1)',err=10) req   ! Read Input File
          call toLowerCase()        ! Convert 'A' to 'a'
          call Router()             ! Run Each Menu
       end do
@@ -38,58 +38,58 @@ c###################################################################
 
       subroutine Router()
 
-      use common, only : request, fnameHop
+      use common, only : req, fnameHop
       implicit none
 
       integer :: ierr
 
-      if (request == 'p') then
+      if (req == 'p') then
          call setParameter()
-      else if (request == 'c') then
+      else if (req == 'c') then
          call setConfig()
-      else if (request == 'b') then
+      else if (req == 'b') then
          call loadKpath()
-      else if (request == '1') then
+      else if (req == '1') then
          !call initConfig()
-      else if (request == 'd') then
+      else if (req == 'd') then
          call display()
-      else if (request == 'e') then
+      else if (req == 'e') then
          call setEnergyRange()
-      else if (request == 'i') then
+      else if (req == 'i') then
          call setIteration()
-      else if (request == 'h') then
+      else if (req == 'h') then
          write(*,*) 'Reading hopping from:',fnameHop
          write(*,*) 'Do you want to change?'
-         read(5,*,err=999) request
-         if (request == 'y') then
+         read(5,*,err=999) req
+         if (req == 'y') then
             call getFilename('filename? ',fnameHop)
             call loadHopping(fnameHop)
          end if
-      else if (request == 'l') then
+      else if (req == 'l') then
          !call loadData()
-      else if (request == 'w') then
+      else if (req == 'w') then
          !call saveData()
-      else if (request == 'm') then
+      else if (req == 'm') then
          call startMeanField(ierr)
-      else if (request == 'o') then
+      else if (req == 'o') then
          !** メソッド名変えたい
          !call orbital()
-      else if (request == 'f') then
+      else if (req == 'f') then
          !call drawFermiSurface()
-      else if (request == 'k') then
+      else if (req == 'k') then
          !Optical Conductivity
          !call startOptics()
-      else if (request == 'b') then
+      else if (req == 'b') then
          !Interband Excitation
          !call startInterband()
-      else if (request == 's') then
+      else if (req == 's') then
          !Susceptibility
          !call startSuscepts()
-      else if (request == 'r') then
+      else if (req == 'r') then
          !call calcResistivity()
-      else if (request == 'v') then
+      else if (req == 'v') then
          !call calcFermiVelocity()
-      else if (request == 'x') then
+      else if (req == 'x') then
          !call startRIXS()
       end if
 
@@ -316,7 +316,7 @@ c###################################################################
 
       subroutine startMeanField(ierr)
 
-      use common, only: request, fnameInit, fnameOut, Dne, Dne1,
+      use common, only: req, fnameInit, fnameOut, Dne, Dne1,
      &         Nkx, Nky, Nkz
       implicit none
 
@@ -338,7 +338,7 @@ c###################################################################
          !call saveData(fnameInit)
          write(*,*)
 
-         if (request /= '1') then
+         if (req /= '1') then
             call calcMeanField()
             write(*,*) ''
             call display

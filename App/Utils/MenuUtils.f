@@ -37,47 +37,47 @@ c###########################################################
 
       subroutine toLowerCase()
 
-      use common, only: request
+      use common, only: req
       implicit none
 
-      if (request == 'Q') then
-         request='q'            !quit
-      else if (request == 'B') then
-         request='b'            !bandplot
-      else if (request == 'C') then
-         request='c'            !config
-      else if (request == 'D') then
-         request='d'            !display
-      else if (request == 'E') then
-         request='e'            !energy
-      else if (request == 'F') then
-         request='f'            !fermi
-      else if (request == 'G') then
-         request='g'            !green
-      else if (request == 'H') then
-         request='h'            !hopping integral
-      else if (request == 'I') then
-         request='i'            !iteration
-      else if (request == 'K') then
-         request = 'k'          !kougaku dendoudo
-      else if (request == 'L') then
-         request='l'            !loard
-      else if (request == 'M') then
-         request='m'            !meanfield
-      else if (request == 'O') then
-         request='o'            !orbital
-      else if (request == 'P') then
-         request='p'            !parameters
-      else if (request == 'R') then
-         request='r'            !resistivity
-      else if (request == 'S') then
-         request='s'            !suscept
-      else if (request == 'V') then
-         request='v'            !meanfield
-      else if (request == 'W') then
-         request='w'            !write
-      else if (request == 'X') then
-         request='x'            !RIXS L-edge
+      if (req == 'Q') then
+         req='q'            !quit
+      else if (req == 'B') then
+         req='b'            !bandplot
+      else if (req == 'C') then
+         req='c'            !config
+      else if (req == 'D') then
+         req='d'            !display
+      else if (req == 'E') then
+         req='e'            !energy
+      else if (req == 'F') then
+         req='f'            !fermi
+      else if (req == 'G') then
+         req='g'            !green
+      else if (req == 'H') then
+         req='h'            !hopping integral
+      else if (req == 'I') then
+         req='i'            !iteration
+      else if (req == 'K') then
+         req = 'k'          !kougaku dendoudo
+      else if (req == 'L') then
+         req='l'            !loard
+      else if (req == 'M') then
+         req='m'            !meanfield
+      else if (req == 'O') then
+         req='o'            !orbital
+      else if (req == 'P') then
+         req='p'            !parameters
+      else if (req == 'R') then
+         req='r'            !resistivity
+      else if (req == 'S') then
+         req='s'            !suscept
+      else if (req == 'V') then
+         req='v'            !meanfield
+      else if (req == 'W') then
+         req='w'            !write
+      else if (req == 'X') then
+         req='x'            !RIXS L-edge
       end if
 
       return

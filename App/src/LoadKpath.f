@@ -4,7 +4,7 @@ c###################################################################
 
       subroutine loadKpath()
 
-      use common, only : request, Nkmesh, Nkpath,
+      use common, only : req, Nkmesh, Nkpath,
      &      kpointList, kpathList
       implicit none
 
