@@ -14,7 +14,7 @@ c###################################################################
       real*8 :: ddmu, dnop0
       complex*16 :: zop2temp(Nband,Nband,2), zop0temp(Nband,Nband,2)
 
-      real*8, external :: fermiDirac, Dntotal, diffDens
+      real*8, external :: Dffn, Dntotal, diffDens
 
       cdwmode = 'off'
       n0mode = 'on'
@@ -38,20 +38,19 @@ c==== cdw, n0 モード off の場合,hamiltonian 行列にこれらの項を含
 
       write(*,*)
       write(*,*)'=========== Iterations ==========='
-      zpsiall(:,:,:,:,:,:)=0.0d0
+      zpsiall(:,:,:,:,:)=0.0d0
 c## ITERATION[
       it = 1 ; conrs = 1000.0d0
       do while ((it < maxIter).and.(conrs >= Conv))
 
-         write(*,*)
-         call calcEigenvalue(Nkx/Nqx, Nky, Nkz,1)
-         call calcEigenvalue(Nkx/Nqx, Nky, Nkz,2)
+         call calcEigenvalue(Nkx/Nqx, Nky, Nkz,0,1)
+         call calcEigenvalue(Nkx/Nqx, Nky, Nkz,0,2)
          write(*,*)' calculating Eigenvalue is done ...'
 
          call calcChemical(Dmu)
          write(*,*) ' estimating chemical potential is done ...'
 
-         write(*,*) 
+         write(*,*)
 
          if (it == 1) then
             ddmu = 1.0d-8
@@ -71,9 +70,9 @@ c## NEW ORDER PARAMETER[
             call calcModifiedDens(dnop0)
          end if
 
-         Zopnew(:,:,:) = Zopnew(:,:,:) / DBLE(Nkx * Nky * Nkz)
-         Zopnew0(:,:,:) = Zopnew0(:,:,:) / DBLE(Nkx * Nky * Nkz)
-         Zopnew2(:,:,:) = Zopnew2(:,:,:) / DBLE(Nkx * Nky * Nkz)
+         Zopnew(:,:,:) = Zopnew(:,:,:) / DBLE(Nkpt)
+         Zopnew0(:,:,:) = Zopnew0(:,:,:) / DBLE(Nkpt)
+         Zopnew2(:,:,:) = Zopnew2(:,:,:) / DBLE(Nkpt)
 
          do mu = 1, Nband
             Dnuu(mu) = Zopnew(mu,mu,1)
@@ -81,7 +80,7 @@ c## NEW ORDER PARAMETER[
             dnop0 = dnop0 + Zopnew0(mu,mu,1)+Zopnew0(mu,mu,2)
          end do
 
-         Dens(:,:) = Dens(:,:) / DBLE(Nkx * Nky * Nkz)
+         Dens(:,:) = Dens(:,:) / DBLE(Nkpt)
          Dne1 = Dntotal(Dmu) * DBLE(Nband)
 
          if (Nqx /= 1) then
@@ -226,12 +225,12 @@ c###################################################################
       real*8, intent(inout) :: dnop0
 
       integer :: i, is, js, js0, js2
-      integer :: kx, ky, kz, mu, nu
+      integer :: ik, mu, nu
 
-      real*8, external :: fermiDirac, Dntotal
+      real*8, external :: Dffn, Dntotal
 
       do mu = 1, Nband ; do nu = 1, Nband
-         do kx = 0, Nkx-1 ; do ky = 0, Nky-1 ; do kz = 0, Nkz-1
+         do ik = 1, Nkpt
             is = nu
             js0 = mu
             js = mu + Nband
@@ -240,27 +239,27 @@ c###################################################################
             do i = 1, Nband * Nqx
 
                Zopnew(mu,nu,:) = Zopnew(mu,nu,:)
-     &               + DCONJG(Zpsiall(kx,ky,kz, js, i,:))
-     &               *        Zpsiall(kx,ky,kz, is, i,:)
-     &               * fermiDirac(Eall(kx,ky,kz,i,:)-Dmu,kT)
+     &               + DCONJG(Zpsiall(ik, 0, js, i,:))
+     &               *        Zpsiall(ik, 0, is, i,:)
+     &               * Dffn(Eall(ik,0,i,:)-Dmu,kT)
 
                Zopnew0(mu,nu,:) = Zopnew0(mu,nu,:)
-     &               + DCONJG(Zpsiall(kx,ky,kz, js0, i,:))
-     &               *        Zpsiall(kx,ky,kz,  is, i,:)
-     &               * fermiDirac(Eall(kx,ky,kz,i,:)-Dmu,kT)
+     &               + DCONJG(Zpsiall(ik, 0, js0, i,:))
+     &               *        Zpsiall(ik, 0,  is, i,:)
+     &               * Dffn(Eall(ik,0,i,:)-Dmu,kT)
 
                Zopnew2(mu,nu,:) = Zopnew2(mu,nu,:)
-     &               + DCONJG(Zpsiall(kx,ky,kz, js2, i,:))
-     &               *        Zpsiall(kx,ky,kz,  is, i,:)
-     &               * fermiDirac(Eall(kx,ky,kz,i,:)-Dmu,kT)
+     &               + DCONJG(Zpsiall(ik, 0, js2, i,:))
+     &               *        Zpsiall(ik, 0,  is, i,:)
+     &               * Dffn(Eall(ik,0,i,:)-Dmu,kT)
                if (mu == nu) then
                   Dens(mu,:) = Dens(mu,:)
-     &                  + DCONJG(Zpsiall(kx,ky,kz,is,i,:))
-     &                  *       Zpsiall(kx,ky,kz,is,i,:)
-     &                  * fermiDirac(Eall(kx,ky,kz,i,:)-Dmu,kT)
+     &                  + DCONJG(Zpsiall(ik, 0, is,i,:))
+     &                  *        Zpsiall(ik, 0, is,i,:)
+     &                  * Dffn(Eall(ik,0,i,:)-Dmu,kT)
                end if
             end do
-         end do ; end do ; end do
+         end do ;
       end do ; end do
 
       return
@@ -273,28 +272,28 @@ c###################################################################
 
       subroutine calcDens()
 
-      use common, only : Nkx, Nky, Nkz, Nband, Nqx,
+      use common, only : Nkx, Nky, Nkz, Nband, Nqx, Nkpt,
      &     Eall, Zpsiall, Zdens, Dmu, kT, Dens, Zop
       implicit none
 
-      integer :: i, j, kx, ky, kz, mu, nu, ispin
+      integer :: i, j, ik, mu, nu, ispin
       real*8 :: sum, dn
       complex*16 :: zdummy
-      real*8, external :: fermiDirac
+      real*8, external :: Dffn
 
       Zdens(:,:) = 0.0d0
       do mu = 1, Nband ; do nu = 1, Nband
-         do kx = 0, Nkx-1 ; do ky = 0, Nky-1 ; do kz = 0, Nkz-1
+         do ik = 1,Nkpt
             do i = 1, Nband*Nqx ; do ispin = 1, 2
                Zdens(mu,nu) = Zdens(mu,nu)
-     &              + DCONJG(Zpsiall(kx,ky,kz, mu, i,ispin))
-     &              *        Zpsiall(kx,ky,kz, nu, i,ispin)
-     &              * fermiDirac(Eall(kx,ky,kz,i,ispin)-Dmu,kT)
+     &              + DCONJG(Zpsiall(ik,0, mu, i,ispin))
+     &              *        Zpsiall(ik,0, nu, i,ispin)
+     &              * Dffn(Eall(ik,0 ,i,ispin)-Dmu,kT)
             end do ; end do
-         end do ; end do ; end do
+         end do
       end do ; end do
       Zdens(1:Nband,1:Nband) = Zdens(1:Nband,1:Nband)
-     &         / DBLE(Nkx*Nky*Nkz*2)
+     &         / DBLE(Nkpt*2)
       ! /2 for spin
       do mu = 1, Nband
          Dens(mu,1) = DBLE(Zdens(mu,mu) + Zop(mu,mu,1))

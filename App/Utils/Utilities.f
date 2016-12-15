@@ -9,10 +9,6 @@ c###################################################################
 
       logical :: isAllocated
 
-      isAllocated = allocated(Eall)
-      if (isAllocated .EQV. .true.) deallocate(Eall)
-      isAllocated = allocated(Zpsiall)
-      if (isAllocated .EQV. .true.) deallocate(Zpsiall)
       isAllocated = allocated(t)
       if (isAllocated .EQV. .true.) deallocate(t)
       isAllocated = allocated(Eorbit)
@@ -29,8 +25,6 @@ c###################################################################
       if (isAllocated .EQV. .true.) deallocate(Dndd)
       isAllocated = allocated(Dens)
       if (isAllocated .EQV. .true.) deallocate(Dens)
-      isAllocated = allocated(Zwfprod)
-      if (isAllocated .EQV. .true.) deallocate(Zwfprod)
       isAllocated = allocated(Zop)
       if (isAllocated .EQV. .true.) deallocate(Zop)
       isAllocated = allocated(Zop0)
@@ -45,6 +39,12 @@ c###################################################################
       if (isAllocated .EQV. .true.) deallocate(Zopnew2)
       isAllocated = allocated(Zdens)
       if (isAllocated .EQV. .true.) deallocate(Zdens)
+      isAllocated = allocated(dk1)
+      if (isAllocated .EQV. .true.) deallocate(dk1)
+      isAllocated = allocated(dk2)
+      if (isAllocated .EQV. .true.) deallocate(dk2)
+      isAllocated = allocated(dk3)
+      if (isAllocated .EQV. .true.) deallocate(dk3)
 
       return
       end
@@ -58,8 +58,6 @@ c###################################################################
       use common
       implicit none
 
-      allocate( Eall(0:Nkx,0:Nky,0:Nkz,Nband*Nqx,2) )
-      allocate( Zpsiall(0:Nkx,0:Nky,0:Nkz,Nband*Nqx,Nband*Nqx,2) )
       allocate( t(Nsite,Nband,Nband) )
       allocate( Eorbit(Nband) )
       allocate( Isitex(Nsite) )
@@ -68,7 +66,6 @@ c###################################################################
       allocate( Dnuu(Nband) )
       allocate( Dndd(Nband) )
       allocate( Dens(Nband,2) )
-      allocate( Zwfprod(0:Nkx,0:Nky,0:Nkz,Nband,Nband,Nband,2) )
       allocate( Zop(Nband,Nband,2) )
       allocate( Zop0(Nband,Nband,2) )
       allocate( Zop2(Nband,Nband,2) )
@@ -76,6 +73,9 @@ c###################################################################
       allocate( Zopnew0(Nband,Nband,2) )
       allocate( Zopnew2(Nband,Nband,2) )
       allocate( Zdens(Nband,Nband) )
+      allocate( dk1(Nksize) )
+      allocate( dk2(Nksize) )
+      allocate( dk3(Nksize) )
 
       return
       end
@@ -84,21 +84,29 @@ c###################################################################
 c###################################################################
 c####   deallocBandPlot:
 c###################################################################
-      subroutine deallocKpath()
+      subroutine deallocPath()
 
       use common
       implicit none
 
       logical :: isAllocated
 
-      isAllocated = allocated(kpathList)
-      if (isAllocated .EQV. .true.) deallocate(kpathList)
-      isAllocated = allocated(kpointList)
-      if (isAllocated .EQV. .true.) deallocate(kpointList)
+      isAllocated = allocated(Eall)
+      if (isAllocated .EQV. .true.) deallocate(Eall)
+      isAllocated = allocated(Zpsiall)
+      if (isAllocated .EQV. .true.) deallocate(Zpsiall)
+      isAllocated = allocated(kpath)
+      if (isAllocated .EQV. .true.) deallocate(kpath)
+      isAllocated = allocated(dkfrac)
+      if (isAllocated .EQV. .true.) deallocate(dkfrac)
       isAllocated = allocated(Eband)
       if (isAllocated .EQV. .true.) deallocate(Eband)
       isAllocated = allocated(Zpsiband)
       if (isAllocated .EQV. .true.) deallocate(Zpsiband)
+      isAllocated = allocated(Zwfprod)
+      if (isAllocated .EQV. .true.) deallocate(Zwfprod)
+      isAllocated = allocated(chi0)
+      if (isAllocated .EQV. .true.) deallocate(chi0)
 
       return
       end
@@ -107,15 +115,19 @@ c###################################################################
 c###################################################################
 c####   allocBandPlot:
 c###################################################################
-      subroutine allocKpath()
+      subroutine allocPath()
 
       use common
       implicit none
 
-      allocate( kpathList(Nkpath) )
-      allocate( kpointList(0:Nkpath*Nkmesh,1:3) )
+      allocate( Eall(Nksize,0:Nkpath*Nkmesh,Nband*Nqx,2) )
+      allocate( Zpsiall(Nksize,0:Nkpath*Nkmesh,Nband*Nqx,Nband*Nqx,2) )
+      allocate( Zwfprod(Nksize,0:Nkpath*Nkmesh,Nband,Nband,Nband,2) )
+      allocate( kpath(Nkpath) )
+      allocate( dkfrac(0:Nkpath*Nkmesh,1:3) )
       allocate( Eband(0:Nkpath*Nkmesh,Nband*Nqx,2) )
       allocate( Zpsiband(0:Nkpath*Nkmesh,Nband*Nqx,Nband*Nqx,2) )
+      allocate( chi0(0:Nkpath*Nkmesh) )
 
       return
       end

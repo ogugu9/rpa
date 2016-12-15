@@ -1,15 +1,15 @@
 c###################################################################
-c##   loadKpath:
+c##   makePath: make k-point path for bandplot or suscept
 c###################################################################
 
-      subroutine loadKpath()
+      subroutine makePath()
 
       use common, only : req, Nkmesh, Nkpath,
-     &      kpointList, kpathList
+     &      dkfrac, kpath
       implicit none
 
-      integer :: i, j, k, nkpt
-      real*8 :: kvecIni(1:3), kvecFin(1:3)
+      integer :: i, j, k, ik
+      real*8 :: kini(1:3), kfin(1:3)
       character*128 :: chara
 
       write(*,*) 'loading kpath for bandplot ...'
@@ -19,36 +19,36 @@ c###################################################################
       read(5,*,err=110) Nkpath
       print "(' => Nkpath  = ', I5)", Nkpath
 
-      call deallocKpath()
-      call allocKpath()
+      call deallocPath()
+      call allocPath()
 
 110   write(*,*)
       write(*,*) '#k-point path for bandplot'
       read(5,*) chara
       do i = 1,Nkpath
          read(5, '(A4,3F6.2,A4,3F6.2)'),
-     &      kpathList(i)%iniName, kpathList(i)%iniPosition,
-     &      kpathList(i)%finName, kpathList(i)%finPosition
+     &      kpath(i)%iniName, kpath(i)%iniPosition,
+     &      kpath(i)%finName, kpath(i)%finPosition
          write(*, '(A4,3F6.2,3X,A4,3F6.2)'),
-     &      kpathList(i)%iniName, kpathList(i)%iniPosition,
-     &      kpathList(i)%finName, kpathList(i)%finPosition
+     &      kpath(i)%iniName, kpath(i)%iniPosition,
+     &      kpath(i)%finName, kpath(i)%finPosition
       end do
       read(5,*) chara ! chara = ## KPOINT PATH ##
       write(*,*)
 
 200   write(*,*) '#k-point list for bandplot'
-      nkpt = 0
+      ik = 0
       do i = 1, Nkpath
-         kvecIni(:) = kpathList(i)%iniPosition
-         kvecFin(:) = kpathList(i)%finPosition
+         kini(:) = kpath(i)%iniPosition
+         kfin(:) = kpath(i)%finPosition
          do j = 0,Nkmesh-1
-            kpointList(nkpt,:) = kvecIni(:)
-     &      + (kvecFin(:)-kvecIni(:)) * DBLE(j)/DBLE(Nkmesh)
-            write(*, '(I3,3F6.2)') nkpt, (kpointList(nkpt,k),k=1,3)
-            nkpt = nkpt + 1
-            if (nkpt == Nkpath * Nkmesh) then
-               kpointList(Nkpath*Nkmesh,:) = kpointList(0,:)
-               write(*, '(I3,3F6.2)') nkpt, (kpointList(nkpt,k),k=1,3)
+            dkfrac(ik,:) = kini(:)
+     &      + (kfin(:)-kini(:)) * DBLE(j)/DBLE(Nkmesh)
+            write(*, '(I3,3F6.2)') ik, (dkfrac(ik,k),k=1,3)
+            ik = ik + 1
+            if (ik == Nkpath*Nkmesh) then
+               dkfrac(Nkpath*Nkmesh,:) = dkfrac(0,:)
+               write(*, '(I3,3F6.2)') ik, (dkfrac(ik,k),k=1,3)
             end if
          end do
       end do

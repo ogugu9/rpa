@@ -64,22 +64,22 @@ c **********************************
 c **********************************
       double precision function Dntotal(ddmu)
 
-      use common, only: Nkx, Nky, Nkz, Nband, Eall, kT, Nqx
+      use common, only: Nkpt, Nband, Eall, kT, Nqx
       implicit none
 
       real*8, intent(in) :: ddmu
-      integer :: kx, ky, kz, i, ispin
+      integer :: ik, i, ispin
       real*8 :: sum, Vk !Vk: Volume of k-space
-      real*8, external :: fermiDirac
+      real*8, external :: Dffn
 
       sum = 0.0d0
 
-      Vk = DBLE(Nkx * Nky * Nkz)
-      do kx = 0, Nkx-1 ; do ky = 0, Nky-1 ; do kz = 0, Nkz-1
+      Vk = DBLE(Nkpt)
+      do ik = 1, Nkpt
          do i = 1, Nband * Nqx ; do ispin = 1, 2
-            sum = sum + fermiDirac(Eall(kx,ky,kz,i,ispin) - ddmu, kT)
+            sum = sum + Dffn(Eall(ik,0,i,ispin) - ddmu, kT)
          end do ; end do
-      end do ; end do ; end do
+      end do
       sum = sum
 
       Dntotal = sum  / DBLE(Nband * Nqx) / Vk
@@ -88,7 +88,7 @@ c      Dntot = Dntot * 2.0d0 ! 2.0 for spin
       return
       end
 c*******************************************************************
-      double precision function fermiDirac(Degn,DkT)
+      double precision function Dffn(Degn,DkT)
 c******* Fermi function  (Degn:energy, DkT:Temperature)
 
       implicit none
@@ -99,16 +99,16 @@ c******* Fermi function  (Degn:energy, DkT:Temperature)
       ddd = 1.0d-15
         if (DkT >= 1.0d-15) then         ! finite temperature
           De = Degn / DkT
-          if (De > 80.d0)  fermiDirac = 0.d0
-          if (De < -80.d0) fermiDirac = 1.d0
+          if (De > 80.d0)  Dffn = 0.d0
+          if (De < -80.d0) Dffn = 1.d0
           if (DABS(De) <= 80.d0) then
-             fermiDirac = 1.d0 / (1.d0 + DEXP(De))
+             Dffn = 1.d0 / (1.d0 + DEXP(De))
           endif
         else                          ! zero temperature
-          if (Degn > 0.0d0) fermiDirac = 0.d0
-          if (Degn < 0.0d0) fermiDirac = 1.d0
+          if (Degn > 0.0d0) Dffn = 0.d0
+          if (Degn < 0.0d0) Dffn = 1.d0
 c          if (Degn == 0.0d0) Dffn = 1.d0
-          if (ABS(Degn) <= ddd) fermiDirac = 0.5d0
+          if (ABS(Degn) <= ddd) Dffn = 0.5d0
         end if
 
         return

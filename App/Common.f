@@ -17,12 +17,15 @@ c###################################################
 c     ## setParameter ##
       real*8, public :: U, J, kT, Dne
 c     ## setConfig ##
-      integer, public :: Nkx, Nky, Nkz, Nband !Nband2, Nrs, Nb
+      integer, public :: Nkx, Nky, Nkz, Nksize, Nband !Nband2, Nrs, Nb
       integer, public :: Nqx, Nqy, Nqz, Nredx, Nredy, Nredz !** Nredxとは?
       real*8, public :: EF
       real*8, public :: la, lb, lc
       real*8, public :: recipLat(1:3,1:3)
-c      ## setIteration calcSelfConsistent ##
+c     ## makeMesh ##
+      integer, public :: Nkpt
+      real*8, allocatable, public :: dk1(:), dk2(:), dk3(:)
+c     ## setIteration calcSelfConsistent ##
       integer, public :: maxIter
       real*8, public  :: conv, conrs
 c     ## setEnergyRange ##
@@ -35,11 +38,11 @@ c     ## loadHopping ##
 
 c     ## calcChemicalPotential ##
       real*8, public :: Dne1, Dmu
-      real*8, allocatable, public :: Eall(:,:,:,:,:)
+      real*8, allocatable, public :: Eall(:,:,:,:)
       real*8, allocatable, public :: Dnuu(:), Dndd(:)
       real*8, allocatable, public :: Dens(:,:)
-      complex*16, allocatable, public :: Zpsiall(:,:,:,:,:,:)
-      complex*16, allocatable, public :: Zwfprod(:,:,:,:,:,:,:)
+      complex*16, allocatable, public :: Zpsiall(:,:,:,:,:)
+      complex*16, allocatable, public :: Zwfprod(:,:,:,:,:,:)
       complex*16, allocatable, public :: Zop(:,:,:)
       complex*16, allocatable, public :: Zdens(:,:)
       complex*16, allocatable, public :: Zopnew(:,:,:)
@@ -50,7 +53,7 @@ c     ## calcChemicalPotential ##
 
 c     ## BandPlot ##
       integer, public :: Nkmesh, Nkpath
-      real*8, allocatable, public :: kpointList(:,:)
+      real*8, allocatable, public :: dkfrac(:,:)
       real*8, allocatable, public :: Eband(:,:,:)
       complex*16, allocatable, public :: Zpsiband(:,:,:,:)
       type kpathType
@@ -58,7 +61,10 @@ c     ## BandPlot ##
          real*8 :: iniPosition(1:3)
          real*8 :: finPosition(1:3)
       end type kpathType
-      type(kpathType),allocatable :: kpathList(:)
+      type(kpathType),allocatable :: kpath(:)
+
+c     ## CalcSuscept ##
+      real*8, allocatable, public :: chi0(:)
 
 
 c      integer, public :: Muselect(4)

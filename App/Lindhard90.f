@@ -47,8 +47,9 @@ c###################################################################
          call setParameter()
       else if (req == 'c') then
          call setConfig()
+         call makeMesh()
       else if (req == 'b') then
-         call loadKpath()
+         call makePath()
       else if (req == '1') then
          !call initConfig()
       else if (req == 'd') then
@@ -84,7 +85,7 @@ c###################################################################
          !call startInterband()
       else if (req == 's') then
          !Susceptibility
-         !call startSuscepts()
+         call startSuscepts()
       else if (req == 'r') then
          !call calcResistivity()
       else if (req == 'v') then
@@ -132,7 +133,7 @@ c###################################################################
 
       subroutine setConfig()
 
-      use common, only : Nkx, Nky, Nkz, Nqx, Nqy, Nqz, Nsite,
+      use common, only : Nkx, Nky, Nkz, Nksize, Nqx, Nqy, Nqz, Nsite,
      &                  Nredx, Nredy, Nredz, Nband, Dne, Dnuu, Dndd,
      &                  EF, la, lb, lc, recipLat
       implicit none
@@ -161,6 +162,8 @@ c###################################################################
          write(*,*) 'Nkz is set to', Nkz
       end if
       print "(' => Nkz   = ', I5)", Nkz
+
+      Nksize = (2*Nkx+1) * (2*Nky+1) * (2*Nkz+1)
 
       ! ** z成分のオーダリングベクトルはどうするか
       read(5,*,err=999) Nqx
@@ -373,4 +376,52 @@ c## check]
 
  999  return
       end
+c####################################################################
+
+c#########################################################
+c#### startSuscepts:  感受率の計算
+c#########################################################
+
+      subroutine startSuscepts()
+      use common
+
+      implicit none
+      integer :: iflag
+
+      do while ( req == 's')
+         write(*,*)'(l)ong, (t)rans or (b)oth?  [x: menu]'
+         write(*,*)'chi(0)                      '
+         read(5,*) req
+
+         if ((req == 'l') .or. (req == 'L')) then
+            iflag = 1
+         else if ((req == 't') .or. (req == 'T')) then
+            iflag = 2
+         else if ((req == 'b') .or. (req == 'B')) then
+            iflag = 3
+         else if (req == '0') then
+            iflag = 0
+         else if (req == 'x') then
+            req = 'd'
+            return
+         else
+            req = 's'
+         end if
+      end do
+      req = 's'
+
+c      write(*,*) '---------------------------------'
+c      call work(req,ierr)
+c      if(ierr == 1) then
+c         write(*,*) 'calculation failed'
+c         return
+c      endif
+c      write(*,*) '---------------------------------'
+!(MF)-> chi
+
+      call calcSuscepts(iflag)
+
+ 999  return
+      end
+
 c####################################################################

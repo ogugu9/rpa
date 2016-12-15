@@ -11,11 +11,13 @@ CHECK = y
 OMP = n
 
 #コンパイルするファイル その１（以下の拡張子をfとしたもの）
-OBJS = 	Lindhard90.o src/LoadHopping.o src/LoadKpath.o \
+OBJS = 	Lindhard90.o src/LoadHopping.o\
+	src/MakePath.o src/MakeMesh.o\
 	Utils/MenuUtils.o Utils/Utilities.o\
 	src/InitConfig.o src/MeanField.o src/CalcChemical.o\
 	src/CalcEigenvalue.o src/Hamiltonian.o\
-	src/OutEigenvalue.o\
+	src/CalcSuscept.o Utils/SusceptUtils.o\
+	src/Output.o\
 
 #コンパイルするファイル その２（以下の拡張子をfとしたもの）
 OBJ2 = Common.o
@@ -28,7 +30,7 @@ MOD=${OBJ2:.o=.mod}
 ifeq ($(FC),gfortran)
   #FFLAGS= -O3 -mcmodel=large
   ifeq ($(CHECK),y)
-    FFLAGS+= -fbounds-check -fbacktrace -ffpe-trap=invalid,zero,overflow
+    FFLAGS+= -g -fbounds-check -fbacktrace -ffpe-trap=invalid,zero,overflow
   endif
   LIBS= ~/lib/LAPACK/liblapack.a ~/lib/LAPACK/librefblas.a
 endif

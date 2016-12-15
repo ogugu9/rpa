@@ -4,13 +4,13 @@ c#########################################################
 c#### hamiltoniank:
 c#########################################################
 
-      subroutine diagH(eig,zpsi,dkx,dky,dkz,ispin)
+      subroutine diagH(eig,zpsi,dk1,dk2,dk3,ispin)
 
       use common, only : Nkx, Nky, Nkz, Nband, Nqx, Nqy, Nqz, Check
       implicit none
 
       integer, intent(in) :: ispin
-      real*8, intent(in) :: dkx, dky, dkz
+      real*8, intent(in) :: dk1, dk2, dk3
       real*8, intent(out) :: eig(Nband*Nqx)
       complex*16, intent(out) :: zpsi(Nband*Nqx,Nband*Nqx)
 
@@ -33,14 +33,14 @@ c#########################################################
       nm = Nband * Nqx
       lwork = (nm + 1) * nm
 
-      call makeH(zhmat,dkx,dky,dkz,ispin)
+      call makeH(zhmat,dk1,dk2,dk3,ispin)
 
 c## HERMITIAN CHECK[
 
       if (Check == 'y') then
          call checkHermitian(nm,zhmat,info)
          if(info < 0) stop
-         if (info == 1) write(*,*)'Hamiltonian is real',dkx,dky,dkz
+         if (info == 1) write(*,*)'Hamiltonian is real',dk1,dk2,dk3
       end if
 
 c## HERMITIAN CHECK]
@@ -71,19 +71,19 @@ c#########################################################
 c#### makeH:
 c#########################################################
 
-      subroutine makeH(zhmat,dkx,dky,dkz,ispin)
+      subroutine makeH(zhmat,dk1,dk2,dk3,ispin)
 
       use common, only : Nkx, Nky, Nkz, Nband, Nsite, Nqx, Nqy, Nqz,
      &     Pi, Zi, t, Eorbit, Isitex, Isitey, Isitez
       implicit none
 
       integer, intent(in) :: ispin
-      real*8, intent(in) :: dkx, dky, dkz
+      real*8, intent(in) :: dk1, dk2, dk3
       complex*16, intent(out) :: zhmat(Nband*Nqx,Nband*Nqx)
 
       integer :: is, mu, nu
       integer :: iQ, lQ1
-      real*8 :: akx, aky, akz
+      real*8 :: ak1, ak2, ak3
       complex*16 :: zbloch(0:Nqx,Nsite)
 
       if ((ispin /= 1).and.(ispin /=2)) then
@@ -101,10 +101,10 @@ c######################################################################
       zhmat(:,:) = 0.0d0
 
       do iQ = 0, Nqx-1
-         akx = dkx + DBLE(iQ) / DBLE(Nqx)
-         aky = dky + DBLE(iQ) / DBLE(Nqy)
-         akz = dkz + DBLE(iQ) / DBLE(Nqz)
-         call calcBlochFactor(zbloch(iQ,:),akx,aky,akz)
+         ak1 = dk1 + DBLE(iQ) / DBLE(Nqx)
+         ak2 = dk2 + DBLE(iQ) / DBLE(Nqy)
+         ak3 = dk3 + DBLE(iQ) / DBLE(Nqz)
+         call calcBlochFactor(zbloch(iQ,:),ak1,ak2,ak3)
       end do
 
       do is = 1, Nsite
@@ -129,14 +129,14 @@ c#########################################################
 c#### bloch: calculate bloch factor at specific k-point
 c#########################################################
 
-      subroutine calcBlochFactor(zbloch,dkx,dky,dkz)
+      subroutine calcBlochFactor(zbloch,dk1,dk2,dk3)
 
       use common, only: Nkx, Nky, Nsite, Isitex, Isitey, Isitez,
      &      Pi, Zi
       implicit none
 
       integer :: is, ix, iy, iz
-      real*8, intent(in) :: dkx, dky, dkz
+      real*8, intent(in) :: dk1, dk2, dk3
       complex*16, intent(out) :: zbloch(Nsite)
 
       zbloch(:) = 0.0d0
@@ -145,9 +145,7 @@ c#########################################################
          ix = isitex(is)
          iy = isitey(is)
          iz = isitez(is)
-         !** orthorhombicもこれでいいのか→よさそう
-c         zbloch(is) = EXP( 2.0d0*Pi*Zi * (ix*dkx + iy*dky) )
-         zbloch(is) = EXP( 2*Pi*Zi*(ix*dkx+iy*dky+iz*dkz) )
+         zbloch(is) = EXP( 2*Pi*Zi*(ix*dk1+iy*dk2+iz*dk3) )
       end do
 
       return
