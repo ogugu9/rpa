@@ -18,8 +18,6 @@ c#########################################################
 c==== .   psi(1)^dagger * psi(2)
 c==== .        1-->--2,  2--<--1
 
-      write(*,*) 'caluclating products of wf...'
-
       nb = Nband * Nqx
 
       do ik = 1, Nkpt

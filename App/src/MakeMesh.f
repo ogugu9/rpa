@@ -18,7 +18,7 @@
       open(20,file="kmesh_frac.dat")
 
       ik = 1
-      do ikx = -Nkx,Nkx ; do iky = -Nky,Nky ; do ikz = -Nkz,Nkz
+      do ikx = 0,Nkx ; do iky = 0,Nky ; do ikz = 0,Nkz
          dkx = DBLE(ikx)/DBLE(Nkx)
          dky = DBLE(iky)/DBLE(Nky)
          dkz = DBLE(ikz)/DBLE(Nkz)

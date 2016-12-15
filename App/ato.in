@@ -29,7 +29,7 @@ Configuration     !系のサイズなど設定
 
 !=== band plot ===
 Bandplot          !バンド分散プロット用
-3      !Nkmesh   !path間のメッシュ
+10      !Nkmesh   !path間のメッシュ
 8       !Nkpath   !pathの本数（以下リストの行数）
 ## KPOINT PATH ##
    G  0.00  0.00  0.00   Z  0.00  0.00  0.50

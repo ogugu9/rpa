@@ -144,26 +144,26 @@ c###################################################################
 
       read(5,*,err=999) Nkx
       if (MOD(Nkx,4) /= 0) then
-         Nkx = Nkx - MOD(Nkx,4)
-         write(*,*) 'Nkx is set to', Nkx
+c         Nkx = Nkx - MOD(Nkx,4)
+c         write(*,*) 'Nkx is set to', Nkx
       end if
       print "(' => Nkx   = ', I5)", Nkx
 
       read(5,*,err=999) Nky
       if (MOD(Nky,4) /= 0) then
-         Nky = Nky - MOD(Nky,4)
-         write(*,*) 'Nky is set to', Nky
+c         Nky = Nky - MOD(Nky,4)
+c         write(*,*) 'Nky is set to', Nky
       end if
       print "(' => Nky   = ', I5)", Nky
 
       read(5,*,err=999) Nkz
       if (MOD(Nkz,4) /= 0 .and. Nkz /= 1) then
-         Nkz = Nkz - MOD(Nkz,4)
-         write(*,*) 'Nkz is set to', Nkz
+c         Nkz = Nkz - MOD(Nkz,4)
+c         write(*,*) 'Nkz is set to', Nkz
       end if
       print "(' => Nkz   = ', I5)", Nkz
 
-      Nksize = (2*Nkx+1) * (2*Nky+1) * (2*Nkz+1)
+      Nksize = Nkx*Nky*Nkz
 
       ! ** z成分のオーダリングベクトルはどうするか
       read(5,*,err=999) Nqx

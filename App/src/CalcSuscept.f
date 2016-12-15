@@ -103,10 +103,10 @@ c#########################################################
          do mu = 1, Nband*Nqx ; do nu = 1, Nband*nqx
 
             val =
-     &      ( Dffn(Eall(ik,iq,mu,isE),kT)
-     &         - Dffn(Eall(ik,0,nu,isH),kT) )
+     &      ( Dffn(Eall(ik,0,mu,isE),kT)
+     &         - Dffn(Eall(ik,iq,nu,isH),kT) )
      &      / ( Omega + Zi * Eta
-     &         - (Eall(ik,iq,mu,isE) - Eall(ik,0,nu,isH)))
+     &         - (Eall(ik,0,mu,isE) - Eall(ik,iq,nu,isH)))
 
 c            if((Dffn(Eall(ik,0,mu,isE),kT)
 c     &      -Dffn(Eall(ik,iq,nu,isH),kT)) .ne. 0.00d0) then
@@ -137,8 +137,8 @@ c     &               Zwfprod(ik, 0,iorb2,iorb3,mu,isE)
 c                  endif
 
                   chi = chi
-     &                 - Zwfprod(ik, 0,iorb2,iorb3,nu,isE)
-     &                 * Zwfprod(ik,iq,iorb4,iorb1,mu,isH)
+     &                 - Zwfprod(ik, 0,iorb2,iorb3,mu,isE)
+     &                 * Zwfprod(ik,iq,iorb4,iorb1,nu,isH)
      &                 * val
 
                end do
