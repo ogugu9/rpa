@@ -65,7 +65,7 @@ c#########################################################
          pathvec(:) = MATMUL(pathvec, recipLat)
          pathlen = DOT_PRODUCT(pathvec,pathvec)
          do im = 1, Nkmesh
-            write(40,'(F8.3,ES12.3)') dk, chi0(iq)
+            write(40,'(F8.3,2ES12.3)') dk, chi0(iq)
             dk = dk + pathlen/DBLE(Nkmesh)
             iq = iq + 1
          end do

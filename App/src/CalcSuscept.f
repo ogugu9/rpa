@@ -38,10 +38,10 @@ c#########################################################
          do mu = 1, Nband ; do nQ = 0, Nqx-1
             ir = Ivrtx(mu,mu,nQ,'L')
             call calcChi0(ir,ir,iq,iom,is,val)
-            chi0(iq) = chi0(iq) - DIMAG(val)
+            chi0(iq) = chi0(iq) + val
          end do ; end do
 
-         write(*,'(I8,ES10.3)'), iq, chi0(iq)
+         write(*,'(I8,2ES10.3)'), iq, chi0(iq)
 
       end do
 
@@ -74,7 +74,7 @@ c#########################################################
       complex*16 :: val
       integer, external :: Ispinpair, Ivrtxinv
 
-      real*8 :: Omega
+      real*8 :: Omega, dum1, dum2, dum3
       real*8, external :: Dffn
 
       mu1 = Ivrtxinv(ir12,1,'L')
@@ -93,6 +93,9 @@ c#########################################################
 
       Omega = DBLE(iom)*Erange/DBLE(maxOmega) + initOmega
 
+c      write(*,*) 'mu1,mu2,mu3,mu4 = ', mu1, mu2, mu3, mu4
+c      write(*,*) 'E,H = ', isE, isH
+
       do ik = 1, Nkpt
          do mu = 1, Nband*Nqx ; do nu = 1, Nband*nqx
 
@@ -101,6 +104,13 @@ c#########################################################
      &         - Dffn(Eall(ik,0,nu,isH),kT) )
      &      / ( Omega + Zi * Eta
      &         - (Eall(ik,iq,mu,isE) - Eall(ik,0,nu,isH)))
+
+c            dum1 = Dffn(Eall(ik,iq,mu,isE),kT)
+c            dum2 = Dffn(Eall(ik,0,nu,isH),kT)
+            !実部が正であるかどうか
+c            if ((val.ne.0.0d0).and.(DREAL(val).lt.0)) then
+c               write(*,*) 'val: ', ik, mu, nu, val
+c            endif
 
 c            if((Dffn(Eall(ik,0,mu,isE),kT)
 c     &      -Dffn(Eall(ik,iq,nu,isH),kT)) .ne. 0.00d0) then
