@@ -103,8 +103,8 @@ c###################################################################
       if (isAllocated .EQV. .true.) deallocate(Eband)
       isAllocated = allocated(Zpsiband)
       if (isAllocated .EQV. .true.) deallocate(Zpsiband)
-      isAllocated = allocated(Zwfprod)
-      if (isAllocated .EQV. .true.) deallocate(Zwfprod)
+c      isAllocated = allocated(Zwfprod)
+c      if (isAllocated .EQV. .true.) deallocate(Zwfprod)
       isAllocated = allocated(chi0)
       if (isAllocated .EQV. .true.) deallocate(chi0)
 
@@ -122,7 +122,7 @@ c###################################################################
 
       allocate( Eall(Nksize,0:Nkpath*Nkmesh,Nband*Nqx,2) )
       allocate( Zpsiall(Nksize,0:Nkpath*Nkmesh,Nband*Nqx,Nband*Nqx,2) )
-      allocate( Zwfprod(Nksize,0:Nkpath*Nkmesh,Nband,Nband,Nband,2) )
+c      allocate( Zwfprod(Nksize,0:Nkpath*Nkmesh,Nband,Nband,Nband,2) )
       allocate( kpath(Nkpath) )
       allocate( dkfrac(0:Nkpath*Nkmesh,1:3) )
       allocate( Eband(0:Nkpath*Nkmesh,Nband*Nqx,2) )
