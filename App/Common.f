@@ -42,7 +42,7 @@ c     ## calcChemicalPotential ##
       real*8, allocatable, public :: Dnuu(:), Dndd(:)
       real*8, allocatable, public :: Dens(:,:)
       complex*16, allocatable, public :: Zpsiall(:,:,:,:,:)
-      complex*16, allocatable, public :: Zwfprod(:,:,:,:,:,:)
+c      complex*16, allocatable, public :: Zwfprod(:,:,:,:,:,:)
       complex*16, allocatable, public :: Zop(:,:,:)
       complex*16, allocatable, public :: Zdens(:,:)
       complex*16, allocatable, public :: Zopnew(:,:,:)

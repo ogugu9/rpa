@@ -6,7 +6,7 @@ c#########################################################
       subroutine calcSuscepts(iflag)
 
       use common, only : Nksize, Nkpath, Nkmesh, Nkx, Nky, Nkz, Nqx,
-     &   chi0, maxOmega, initOmega, Erange, Eta, kT, Nband, Zwfprod
+     &   chi0, maxOmega, initOmega, Erange, Eta, kT, Nband
 
       implicit none
       integer, intent(in) :: iflag
@@ -19,17 +19,12 @@ c#########################################################
 
       write(*,*) 'caliculating bare-susceptibility...'
 
-
       chi0(:) = 0.0d0
       is = 1      ! Non-spin-polarization
       iom = 0     ! Omega = 0
 
       Omega = DBLE(iom)*Erange/DBLE(maxOmega) + initOmega
       write(*,*) 'Omega=', Omega
-
-      is_allocated = allocated(Zwfprod)
-      if (is_allocated .EQV. .true.) deallocate(Zwfprod)
-      allocate( Zwfprod(Nksize,0:Nkpath*Nkmesh,Nband,Nband,Nband,2) )
 
       ! Gamma点だけ除いて計算する。Gamma点で発散するのが自明なため。
       ! iq = 0 or Nkpath*Nkmesh : Gamma点
@@ -38,8 +33,7 @@ c#########################################################
          ! Caluculate Eigenvalue at vector k+q
          call calcEigenvalue(Nkx/Nqx, Nky, Nkz,iq,1)
          call calcEigenvalue(Nkx/Nqx, Nky, Nkz,iq,2)
-         ! Calculate Productions of WaveFunction
-         call productWaveFunction(iq)
+         !call productWaveFunction(iq)
 
          do mu = 1, Nband ; do nQ = 0, Nqx-1
             ir = Ivrtx(mu,mu,nQ,'L')
@@ -67,7 +61,7 @@ c#########################################################
 
       use common, only : Nband, Nkpt, Nqx, Zi, Pi,
      &     maxOmega, initOmega, Erange, Eta, kT,
-     &     Zwfprod, Zpsiall, Eall
+     &     Zpsiall, Eall
       implicit none
 
       integer, intent(in) :: ir12, ir34, iq, iom, is
@@ -103,10 +97,10 @@ c#########################################################
          do mu = 1, Nband*Nqx ; do nu = 1, Nband*nqx
 
             val =
-     &      ( Dffn(Eall(ik,0,mu,isE),kT)
-     &         - Dffn(Eall(ik,iq,nu,isH),kT) )
+     &      ( Dffn(Eall(ik,iq,mu,isE),kT)
+     &         - Dffn(Eall(ik,0,nu,isH),kT) )
      &      / ( Omega + Zi * Eta
-     &         - (Eall(ik,0,mu,isE) - Eall(ik,iq,nu,isH)))
+     &         - (Eall(ik,iq,mu,isE) - Eall(ik,0,nu,isH)))
 
 c            if((Dffn(Eall(ik,0,mu,isE),kT)
 c     &      -Dffn(Eall(ik,iq,nu,isH),kT)) .ne. 0.00d0) then
@@ -137,8 +131,10 @@ c     &               Zwfprod(ik, 0,iorb2,iorb3,mu,isE)
 c                  endif
 
                   chi = chi
-     &                 - Zwfprod(ik, 0,iorb2,iorb3,mu,isE)
-     &                 * Zwfprod(ik,iq,iorb4,iorb1,nu,isH)
+     &                 + Zpsiall(ik,iq,iorb2,mu,is)
+     &                 * DCONJG(Zpsiall(ik,iq,iorb3,mu,is))
+     &                 * Zpsiall(ik,0,iorb4,nu,is)
+     &                 * DCONJG(Zpsiall(ik,0,iorb1,nu,is))
      &                 * val
 
                end do
